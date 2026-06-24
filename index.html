@@ -284,7 +284,7 @@ body {
 <div class="header">
   <div class="header-badge">🏸 Giải Cầu Lông Sân Vườn</div>
   <h1>Hệ Thống Bốc Thăm & Nhập Điểm</h1>
-  <p class="header-sub">Nhập Đội trưởng & Thành viên để quay số ghép cặp ngẫu nhiên vào các nhánh đấu tự động</p>
+  <p class="header-sub">Nhập Đội trưởng & Thành viên để quay số ghép cặp ngẫu nhiên vào các nhánh đấu tự động (Đồng bộ Cloud Realtime)</p>
 </div>
 
 <div class="section-title">🎲 Bước 1: Bốc thăm ghép đội và Chia bảng</div>
@@ -292,17 +292,17 @@ body {
   <div class="draw-grid">
     <div class="draw-list-group">
       <div class="draw-list-title">👑 Danh sách Đội Trưởng</div>
-      <input id="cap_1" value="Đội Trưởng A">
-      <input id="cap_2" value="Đội Trưởng B">
-      <input id="cap_3" value="Đội Trưởng C">
-      <input id="cap_4" value="Đội Trưởng D">
+      <input id="cap_1" value="Đội Trưởng A" oninput="pushInputsToFirebase()">
+      <input id="cap_2" value="Đội Trưởng B" oninput="pushInputsToFirebase()">
+      <input id="cap_3" value="Đội Trưởng C" oninput="pushInputsToFirebase()">
+      <input id="cap_4" value="Đội Trưởng D" oninput="pushInputsToFirebase()">
     </div>
     <div class="draw-list-group">
       <div class="draw-list-title">🏸 Danh sách Thành Viên</div>
-      <input id="mem_1" value="Thành Viên 1">
-      <input id="mem_2" value="Thành Viên 2">
-      <input id="mem_3" value="Thành Viên 3">
-      <input id="mem_4" value="Thành Viên 4">
+      <input id="mem_1" value="Thành Viên 1" oninput="pushInputsToFirebase()">
+      <input id="mem_2" value="Thành Viên 2" oninput="pushInputsToFirebase()">
+      <input id="mem_3" value="Thành Viên 3" oninput="pushInputsToFirebase()">
+      <input id="mem_4" value="Thành Viên 4" oninput="pushInputsToFirebase()">
     </div>
     
     <div class="draw-actions" id="draw-buttons-block">
@@ -328,29 +328,29 @@ body {
     <div class="team-group">
       <div class="team-group-title" style="color:#2563eb;">🔵 Cặp đấu số 1 (BK1)</div>
       <div class="input-pair">
-        <input id="t1_p1" placeholder="Đội trưởng..." oninput="saveAndResetNames()">
-        <input id="t1_p2" placeholder="Thành viên..." oninput="saveAndResetNames()">
+        <input id="t1_p1" placeholder="Đội trưởng..." oninput="pushNamesToFirebase()">
+        <input id="t1_p2" placeholder="Thành viên..." oninput="pushNamesToFirebase()">
       </div>
     </div>
     <div class="team-group">
       <div class="team-group-title" style="color:#d97706;">🟡 Cặp đấu số 2 (BK1)</div>
       <div class="input-pair">
-        <input id="t2_p1" placeholder="Đội trưởng..." oninput="saveAndResetNames()">
-        <input id="t2_p2" placeholder="Thành viên..." oninput="saveAndResetNames()">
+        <input id="t2_p1" placeholder="Đội trưởng..." oninput="pushNamesToFirebase()">
+        <input id="t2_p2" placeholder="Thành viên..." oninput="pushNamesToFirebase()">
       </div>
     </div>
     <div class="team-group">
       <div class="team-group-title" style="color:#059669;">🟢 Cặp đấu số 3 (BK2)</div>
       <div class="input-pair">
-        <input id="t3_p1" placeholder="Đội trưởng..." oninput="saveAndResetNames()">
-        <input id="t3_p2" placeholder="Thành viên..." oninput="saveAndResetNames()">
+        <input id="t3_p1" placeholder="Đội trưởng..." oninput="pushNamesToFirebase()">
+        <input id="t3_p2" placeholder="Thành viên..." oninput="pushNamesToFirebase()">
       </div>
     </div>
     <div class="team-group">
       <div class="team-group-title" style="color:#e11d48;">🔴 Cặp đấu số 4 (BK2)</div>
       <div class="input-pair">
-        <input id="t4_p1" placeholder="Đội trưởng..." oninput="saveAndResetNames()">
-        <input id="t4_p2" placeholder="Thành viên..." oninput="saveAndResetNames()">
+        <input id="t4_p1" placeholder="Đội trưởng..." oninput="pushNamesToFirebase()">
+        <input id="t4_p2" placeholder="Thành viên..." oninput="pushNamesToFirebase()">
       </div>
     </div>
   </div>
@@ -379,13 +379,13 @@ body {
           <div class="score-stepper-container">
             <div class="score-stepper" id="step_s_l1_1">
               <button class="btn-step" onclick="step('s_l1_1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l1_1" class="score-in" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l1_1" class="score-in" oninput="pushScoresToFirebase()">
               <button class="btn-step" onclick="step('s_l1_1', 1)">+</button>
             </div>
             <span class="score-colon">:</span>
             <div class="score-stepper" id="step_s_l1_2">
               <button class="btn-step" onclick="step('s_l1_2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l1_2" class="score-in" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l1_2" class="score-in" oninput="pushScoresToFirebase()">
               <button class="btn-step" onclick="step('s_l1_2', 1)">+</button>
             </div>
           </div>
@@ -401,13 +401,13 @@ body {
           <div class="score-stepper-container">
             <div class="score-stepper" id="step_s_l2_3">
               <button class="btn-step" onclick="step('s_l2_3', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l2_3" class="score-in" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l2_3" class="score-in" oninput="pushScoresToFirebase()">
               <button class="btn-step" onclick="step('s_l2_3', 1)">+</button>
             </div>
             <span class="score-colon">:</span>
             <div class="score-stepper" id="step_s_l2_4">
               <button class="btn-step" onclick="step('s_l2_4', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l2_4" class="score-in" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l2_4" class="score-in" oninput="pushScoresToFirebase()">
               <button class="btn-step" onclick="step('s_l2_4', 1)">+</button>
             </div>
           </div>
@@ -423,13 +423,13 @@ body {
           <div class="score-stepper-container">
             <div class="score-stepper" id="step_s_l3_1">
               <button class="btn-step" onclick="step('s_l3_1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l3_1" class="score-in" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l3_1" class="score-in" oninput="pushScoresToFirebase()">
               <button class="btn-step" onclick="step('s_l3_1', 1)">+</button>
             </div>
             <span class="score-colon">:</span>
             <div class="score-stepper" id="step_s_l3_2">
               <button class="btn-step" onclick="step('s_l3_2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l3_2" class="score-in" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l3_2" class="score-in" oninput="pushScoresToFirebase()">
               <button class="btn-step" onclick="step('s_l3_2', 1)">+</button>
             </div>
           </div>
@@ -445,13 +445,13 @@ body {
           <div class="score-stepper-container">
             <div class="score-stepper" id="step_s_l4_3">
               <button class="btn-step" onclick="step('s_l4_3', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l4_3" class="score-in" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l4_3" class="score-in" oninput="pushScoresToFirebase()">
               <button class="btn-step" onclick="step('s_l4_3', 1)">+</button>
             </div>
             <span class="score-colon">:</span>
             <div class="score-stepper" id="step_s_l4_4">
               <button class="btn-step" onclick="step('s_l4_4', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l4_4" class="score-in" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l4_4" class="score-in" oninput="pushScoresToFirebase()">
               <button class="btn-step" onclick="step('s_l4_4', 1)">+</button>
             </div>
           </div>
@@ -468,13 +468,13 @@ body {
           <div class="score-stepper-container">
             <div class="score-stepper" id="step_s_l5_1">
               <button class="btn-step" onclick="step('s_l5_1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l5_1" class="score-in" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l5_1" class="score-in" oninput="pushScoresToFirebase()">
               <button class="btn-step" onclick="step('s_l5_1', 1)">+</button>
             </div>
             <span class="score-colon">:</span>
             <div class="score-stepper" id="step_s_l5_2">
               <button class="btn-step" onclick="step('s_l5_2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l5_2" class="score-in" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l5_2" class="score-in" oninput="pushScoresToFirebase()">
               <button class="btn-step" onclick="step('s_l5_2', 1)">+</button>
             </div>
           </div>
@@ -490,13 +490,13 @@ body {
           <div class="score-stepper-container">
             <div class="score-stepper" id="step_s_l6_3">
               <button class="btn-step" onclick="step('s_l6_3', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l6_3" class="score-in" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l6_3" class="score-in" oninput="pushScoresToFirebase()">
               <button class="btn-step" onclick="step('s_l6_3', 1)">+</button>
             </div>
             <span class="score-colon">:</span>
             <div class="score-stepper" id="step_s_l6_4">
               <button class="btn-step" onclick="step('s_l6_4', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l6_4" class="score-in" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l6_4" class="score-in" oninput="pushScoresToFirebase()">
               <button class="btn-step" onclick="step('s_l6_4', 1)">+</button>
             </div>
           </div>
@@ -513,13 +513,13 @@ body {
           <div class="score-stepper-container">
             <div class="score-stepper" id="step_s_l7_lost1">
               <button class="btn-step" onclick="step('s_l7_lost1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l7_lost1" class="score-in" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l7_lost1" class="score-in" oninput="pushScoresToFirebase()">
               <button class="btn-step" onclick="step('s_l7_lost1', 1)">+</button>
             </div>
             <span class="score-colon">:</span>
             <div class="score-stepper" id="step_s_l7_lost2">
               <button class="btn-step" onclick="step('s_l7_lost2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l7_lost2" class="score-in" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l7_lost2" class="score-in" oninput="pushScoresToFirebase()">
               <button class="btn-step" onclick="step('s_l7_lost2', 1)">+</button>
             </div>
           </div>
@@ -535,13 +535,13 @@ body {
           <div class="score-stepper-container">
             <div class="score-stepper" id="step_s_l8_win1">
               <button class="btn-step" onclick="step('s_l8_win1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l8_win1" class="score-in" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l8_win1" class="score-in" oninput="pushScoresToFirebase()">
               <button class="btn-step" onclick="step('s_l8_win1', 1)">+</button>
             </div>
             <span class="score-colon">:</span>
             <div class="score-stepper" id="step_s_l8_win2">
               <button class="btn-step" onclick="step('s_l8_win2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l8_win2" class="score-in" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l8_win2" class="score-in" oninput="pushScoresToFirebase()">
               <button class="btn-step" onclick="step('s_l8_win2', 1)">+</button>
             </div>
           </div>
@@ -557,13 +557,13 @@ body {
           <div class="score-stepper-container">
             <div class="score-stepper" id="step_s_l9_lost1">
               <button class="btn-step" onclick="step('s_l9_lost1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l9_lost1" class="score-in" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l9_lost1" class="score-in" oninput="pushScoresToFirebase()">
               <button class="btn-step" onclick="step('s_l9_lost1', 1)">+</button>
             </div>
             <span class="score-colon">:</span>
             <div class="score-stepper" id="step_s_l9_lost2">
               <button class="btn-step" onclick="step('s_l9_lost2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l9_lost2" class="score-in" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l9_lost2" class="score-in" oninput="pushScoresToFirebase()">
               <button class="btn-step" onclick="step('s_l9_lost2', 1)">+</button>
             </div>
           </div>
@@ -579,13 +579,13 @@ body {
           <div class="score-stepper-container">
             <div class="score-stepper" id="step_s_l10_win1">
               <button class="btn-step" onclick="step('s_l10_win1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l10_win1" class="score-in" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l10_win1" class="score-in" oninput="pushScoresToFirebase()">
               <button class="btn-step" onclick="step('s_l10_win1', 1)">+</button>
             </div>
             <span class="score-colon">:</span>
             <div class="score-stepper" id="step_s_l10_win2">
               <button class="btn-step" onclick="step('s_l10_win2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l10_win2" class="score-in" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l10_win2" class="score-in" oninput="pushScoresToFirebase()">
               <button class="btn-step" onclick="step('s_l10_win2', 1)">+</button>
             </div>
           </div>
@@ -602,13 +602,13 @@ body {
           <div class="score-stepper-container">
             <div class="score-stepper" id="step_s_l11_lost1">
               <button class="btn-step" onclick="step('s_l11_lost1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l11_lost1" class="score-in" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l11_lost1" class="score-in" oninput="pushScoresToFirebase()">
               <button class="btn-step" onclick="step('s_l11_lost1', 1)">+</button>
             </div>
             <span class="score-colon">:</span>
             <div class="score-stepper" id="step_s_l11_lost2">
               <button class="btn-step" onclick="step('s_l11_lost2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l11_lost2" class="score-in" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l11_lost2" class="score-in" oninput="pushScoresToFirebase()">
               <button class="btn-step" onclick="step('s_l11_lost2', 1)">+</button>
             </div>
           </div>
@@ -624,13 +624,13 @@ body {
           <div class="score-stepper-container">
             <div class="score-stepper" id="step_s_l12_win1">
               <button class="btn-step" onclick="step('s_l12_win1', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l12_win1" class="score-in" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l12_win1" class="score-in" oninput="pushScoresToFirebase()">
               <button class="btn-step" onclick="step('s_l12_win1', 1)">+</button>
             </div>
             <span class="score-colon">:</span>
             <div class="score-stepper" id="step_s_l12_win2">
               <button class="btn-step" onclick="step('s_l12_win2', -1)">-</button>
-              <input type="number" inputmode="numeric" id="s_l12_win2" class="score-in" oninput="calcAll()">
+              <input type="number" inputmode="numeric" id="s_l12_win2" class="score-in" oninput="pushScoresToFirebase()">
               <button class="btn-step" onclick="step('s_l12_win2', 1)">+</button>
             </div>
           </div>
@@ -670,8 +670,30 @@ body {
   <button class="btn-reset" onclick="clearTournament()">🔄 Xóa sạch làm lại từ đầu</button>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
 <script>
-// Quản lý trạng thái Bốc thăm nội bộ
+// ==========================================
+// CẤU HÌNH FIREBASE - HÃY THAY ĐỔI THEO DỰ ÁN CỦA BẠN
+// ==========================================
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+// Khởi tạo Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+// Định nghĩa node cha quản lý giải đấu hiện tại
+const tournamentRef = db.ref("badminton_tournament_current");
+
+// State nội bộ để hỗ trợ xử lý random bốc thăm cục bộ trước khi đồng bộ
 let poolMembers = [];
 let poolTeams = [1, 2, 3, 4];
 let drawHistory = {}; 
@@ -683,85 +705,116 @@ const scoreIds = [
 ];
 const nameIds = ['t1_p1','t1_p2', 't2_p1','t2_p2', 't3_p1','t3_p2', 't4_p1','t4_p2'];
 
-// Hàm xử lý lõi Cơ Chế Bốc Thăm
-function executeDraw(captainIndex) {
-  // Đồng bộ lại pool nếu đây là lượt bấm đầu tiên
-  if (poolMembers.length === 0 && Object.keys(drawHistory).length === 0) {
-    // Lưu lại danh sách tên input vào localStorage để khi reload không bị mất
-    for(let i=1; i<=4; i++) {
-      localStorage.setItem(`cap_${i}`, document.getElementById(`cap_${i}`).value.trim());
-      localStorage.setItem(`mem_${i}`, document.getElementById(`mem_${i}`).value.trim());
-    }
+// ĐỒNG BỘ DỮ LIỆU TỪ FIREBASE VỀ TOÀN BỘ GIAO DIỆN (Real-time Listener)
+tournamentRef.on('value', (snapshot) => {
+  const data = snapshot.val();
+  if (!data) {
+    resetFormUI();
+    return;
+  }
 
+  // 1. Phục hồi danh sách Input bốc thăm ở Bước 1
+  for(let i=1; i<=4; i++) {
+    if (data[`cap_${i}`] !== undefined) document.getElementById(`cap_${i}`).value = data[`cap_${i}`];
+    if (data[`mem_${i}`] !== undefined) document.getElementById(`mem_${i}`).value = data[`mem_${i}`];
+  }
+
+  // 2. Phục hồi Log Nhật ký bốc thăm thực tế & Khóa nút
+  if (data.drawHistory) {
+    drawHistory = data.drawHistory;
+    poolMembers = data.poolMembers || [];
+    poolTeams = data.poolTeams || [];
+    
     for(let i=1; i<=4; i++) {
+      if (drawHistory[i]) {
+        let d = drawHistory[i];
+        document.getElementById(`btn_draw_${i}`).disabled = true;
+        let groupLabel = (d.teamSlot <= 2) ? "BK1" : "BK2";
+        document.getElementById(`draw_log_${i}`).innerHTML = `<span>${d.captain}:</span> <span style="font-weight:700; color:#16a34a"> Ghép với [${d.member}] ➔ Đội ${d.teamSlot} (${groupLabel})</span>`;
+      } else {
+        document.getElementById(`btn_draw_${i}`).disabled = false;
+        document.getElementById(`draw_log_${i}`).innerHTML = `<span>Đội trưởng ${String.fromCharCode(64 + i)}:</span> <span style="font-weight:bold; color:var(--text3)">Chờ bấm...</span>`;
+      }
+    }
+  } else {
+    // Trường hợp chưa bốc thăm lượt nào hoặc đã bị reset bốc thăm
+    drawHistory = {};
+    poolMembers = data.poolMembers || [];
+    poolTeams = data.poolTeams || [1, 2, 3, 4];
+    for(let i=1; i<=4; i++) {
+      document.getElementById(`btn_draw_${i}`).disabled = false;
+      document.getElementById(`draw_log_${i}`).innerHTML = `<span>Đội trưởng ${String.fromCharCode(64 + i)}:</span> <span style="font-weight:bold; color:var(--text3)">Chờ bấm...</span>`;
+    }
+  }
+
+  // 3. Phục hồi các trường Tên cặp đấu (Form Bước 2)
+  nameIds.forEach(id => {
+    document.getElementById(id).value = data[id] !== undefined ? data[id] : "";
+  });
+
+  // 4. Phục hồi Điểm số 
+  scoreIds.forEach(id => {
+    document.getElementById(id).value = data[id] !== undefined ? data[id] : "";
+  });
+
+  // 5. Tính toán lại hiển thị bảng đấu
+  updateNamesLocal();
+});
+
+// THỰC THI BỐC THĂM (Đẩy dữ liệu lên Firebase)
+function executeDraw(captainIndex) {
+  // Nếu đây là lượt bốc thăm đầu tiên, khởi tạo pool và đồng bộ danh sách tên hiện tại lên DB
+  if (Object.keys(drawHistory).length === 0) {
+    poolMembers = [];
+    let initialInputs = {};
+    for(let i=1; i<=4; i++) {
+      let cVal = document.getElementById(`cap_${i}`).value.trim();
       let mVal = document.getElementById(`mem_${i}`).value.trim();
+      
+      initialInputs[`cap_${i}`] = cVal;
+      initialInputs[`mem_${i}`] = mVal;
       poolMembers.push(mVal || `Thành Viên ${i}`);
     }
     poolTeams = [1, 2, 3, 4];
+    tournamentRef.update(initialInputs);
   }
 
   const captainName = document.getElementById(`cap_${captainIndex}`).value.trim() || `Đội Trưởng ${String.fromCharCode(64 + captainIndex)}`;
   
-  // Tiến hành Random lấy 1 Thành viên và 1 số Đội đấu
+  // Thuật toán bốc thăm ngẫu nhiên
   const randMemIdx = Math.floor(Math.random() * poolMembers.length);
   const chosenMember = poolMembers.splice(randMemIdx, 1)[0];
 
   const randTeamIdx = Math.floor(Math.random() * poolTeams.length);
   const chosenTeamSlot = poolTeams.splice(randTeamIdx, 1)[0];
 
-  // Lưu lịch sử
   drawHistory[captainIndex] = {
     captain: captainName,
     member: chosenMember,
     teamSlot: chosenTeamSlot
   };
 
-  // Cập nhật giao diện log bốc thăm sinh động
-  let targetRow = document.getElementById(`draw_log_${captainIndex}`);
-  let groupLabel = (chosenTeamSlot <= 2) ? "BK1" : "BK2";
-  targetRow.innerHTML = `<span>${captainName}:</span> <span style="font-weight:700; color:#16a34a"> Ghép với [${chosenMember}] ➔ Đội ${chosenTeamSlot} (${groupLabel})</span>`;
-  
-  // Khóa nút vừa bấm lại
-  document.getElementById(`btn_draw_${captainIndex}`).disabled = true;
+  let drawUpdate = {
+    drawHistory: drawHistory,
+    poolMembers: poolMembers,
+    poolTeams: poolTeams
+  };
 
-  // Lưu trạng thái bốc thăm tạm thời vào Storage
-  localStorage.setItem('cached_draw_history', JSON.stringify(drawHistory));
-  localStorage.setItem('cached_pool_members', JSON.stringify(poolMembers));
-  localStorage.setItem('cached_pool_teams', JSON.stringify(poolTeams));
-
-  // Kiểm tra nếu tất cả 4 đội trưởng đã bấm xong ➔ Tiến hành Auto-fill dữ liệu xuống dưới
+  // Nếu bốc đủ cả 4 đội trưởng -> Tự điền tên xuống các cặp đấu bên dưới
   if (Object.keys(drawHistory).length === 4) {
-    autoFillTournamentRows();
+    Object.keys(drawHistory).forEach(key => {
+      let data = drawHistory[key];
+      let slot = data.teamSlot;
+      drawUpdate[`t${slot}_p1`] = data.captain;
+      drawUpdate[`t${slot}_p2`] = data.member;
+    });
   }
+
+  // Cập nhật Firebase
+  tournamentRef.update(drawUpdate);
 }
 
-function autoFillTournamentRows() {
-  // Điền dữ liệu bốc thăm vào form Đội đấu
-  Object.keys(drawHistory).forEach(key => {
-    let data = drawHistory[key];
-    let slot = data.teamSlot;
-    document.getElementById(`t${slot}_p1`).value = data.captain;
-    document.getElementById(`t${slot}_p2`).value = data.member;
-  });
-
-  saveAndResetNames();
-}
-
-function resetDrawOnly() {
-  poolMembers = [];
-  poolTeams = [1, 2, 3, 4];
-  drawHistory = {};
-  localStorage.removeItem('cached_draw_history');
-  localStorage.removeItem('cached_pool_members');
-  localStorage.removeItem('cached_pool_teams');
-
-  for(let i=1; i<=4; i++) {
-    document.getElementById(`btn_draw_${i}`).disabled = false;
-    document.getElementById(`draw_log_${i}`).innerHTML = `<span>Đội trưởng ${String.fromCharCode(64 + i)}:</span> <span style="font-weight:bold; color:var(--text3)">Chờ bấm...</span>`;
-  }
-}
-
-// HÀM STEPPER DI ĐỘNG & LOGIC GIẢI ĐẤU GIỮ NGUYÊN
+// Hàm Step tăng giảm điểm số từ nút bấm + -
 function step(id, amount) {
   const el = document.getElementById(id);
   let current = parseInt(el.value);
@@ -769,9 +822,49 @@ function step(id, amount) {
   let newValue = current + amount;
   if (newValue < 0) newValue = 0;
   el.value = newValue;
-  calcAll();
+  
+  // Gửi trực tiếp giá trị của ô vừa cập nhật lên Firebase luôn
+  tournamentRef.child(id).set(newValue);
 }
 
+// HÀM DEBOUNCE HỖ TRỢ NGƯỜI DÙNG TỰ GÕ TRÊN BÀN PHÍM MÀ KHÔNG GÂY QUÁ TẢI/XUNG ĐỘT DB
+let inputTimeout, nameTimeout, scoreTimeout;
+
+function pushInputsToFirebase() {
+  clearTimeout(inputTimeout);
+  inputTimeout = setTimeout(() => {
+    let updates = {};
+    for(let i=1; i<=4; i++) {
+      updates[`cap_${i}`] = document.getElementById(`cap_${i}`).value;
+      updates[`mem_${i}`] = document.getElementById(`mem_${i}`).value;
+    }
+    tournamentRef.update(updates);
+  }, 400); // Đợi ngưng gõ 400ms mới đẩy dữ liệu
+}
+
+function pushNamesToFirebase() {
+  clearTimeout(nameTimeout);
+  nameTimeout = setTimeout(() => {
+    let nameUpdates = {};
+    nameIds.forEach(id => {
+      nameUpdates[id] = document.getElementById(id).value;
+    });
+    tournamentRef.update(nameUpdates);
+  }, 400);
+}
+
+function pushScoresToFirebase() {
+  clearTimeout(scoreTimeout);
+  scoreTimeout = setTimeout(() => {
+    let scoreUpdates = {};
+    scoreIds.forEach(id => {
+      scoreUpdates[id] = document.getElementById(id).value;
+    });
+    tournamentRef.update(scoreUpdates);
+  }, 500);
+}
+
+// LOGIC TÍNH TOÁN HIỂN THỊ NỘI BỘ (Giữ nguyên cấu trúc thuật toán giải đấu của bạn)
 function getTeamName(num) {
   const p1 = document.getElementById(`t${num}_p1`).value.trim();
   const p2 = document.getElementById(`t${num}_p2`).value.trim();
@@ -779,12 +872,7 @@ function getTeamName(num) {
   return `${p1} + ${p2}`;
 }
 
-function saveAndResetNames() {
-  nameIds.forEach(id => { localStorage.setItem(id, document.getElementById(id).value); });
-  updateNames();
-}
-
-function updateNames() {
+function updateNamesLocal() {
   const n1 = getTeamName(1), n2 = getTeamName(2);
   const n3 = getTeamName(3), n4 = getTeamName(4);
 
@@ -794,7 +882,7 @@ function updateNames() {
   document.getElementById('lbl_l4_t3').textContent = n3; document.getElementById('lbl_l4_t4').textContent = n4;
   document.getElementById('lbl_l5_t1').textContent = n1; document.getElementById('lbl_l5_t2').textContent = n2;
   document.getElementById('lbl_l6_t3').textContent = n3; document.getElementById('lbl_l6_t4').textContent = n4;
-  calcAll();
+  calcAllLocal();
 }
 
 function parseScore(id) {
@@ -812,8 +900,7 @@ function styleInputPair(id1, id2) {
   else { step1.className = 'score-stepper'; step2.className = 'score-stepper'; }
 }
 
-function calcAll() {
-  scoreIds.forEach(id => { localStorage.setItem(id, document.getElementById(id).value); });
+function calcAllLocal() {
   const pairs = [
     ['s_l1_1','s_l1_2'], ['s_l2_3','s_l2_4'], ['s_l3_1','s_l3_2'], ['s_l4_3','s_l4_4'],
     ['s_l5_1','s_l5_2'], ['s_l6_3','s_l6_4'], ['s_l7_lost1','s_l7_lost2'], ['s_l8_win1','s_l8_win2'],
@@ -899,51 +986,37 @@ function calcAll() {
   else { document.getElementById('f_3rd').textContent = "Chờ tranh hạng ba..."; document.getElementById('f_4th').textContent = "—"; }
 }
 
-// Hàm tải lại dữ liệu (Đã sửa để khôi phục cả danh sách bốc thăm ban đầu)
-function loadSavedData() {
-  // Phục hồi giá trị các ô Input bốc thăm ban đầu nếu có
-  for(let i=1; i<=4; i++) {
-    const savedCap = localStorage.getItem(`cap_${i}`);
-    const savedMem = localStorage.getItem(`mem_${i}`);
-    if (savedCap !== null) document.getElementById(`cap_${i}`).value = savedCap;
-    if (savedMem !== null) document.getElementById(`mem_${i}`).value = savedMem;
+// RESET CHỈ RIÊNG TIẾN TRÌNH BỐC THĂM
+function resetDrawOnly() {
+  if (confirm("Reset lại trạng thái bốc thăm trên Database? (Tên các cặp đấu đã điền và Điểm số vẫn giữ nguyên)")) {
+    tournamentRef.child("drawHistory").remove();
+    tournamentRef.child("poolMembers").remove();
+    tournamentRef.child("poolTeams").remove();
   }
-
-  // Phục hồi log bốc thăm nếu có
-  const savedDraw = localStorage.getItem('cached_draw_history');
-  if (savedDraw) {
-    drawHistory = JSON.parse(savedDraw);
-    poolMembers = JSON.parse(localStorage.getItem('cached_pool_members')) || [];
-    poolTeams = JSON.parse(localStorage.getItem('cached_pool_teams')) || [];
-    Object.keys(drawHistory).forEach(k => {
-      let d = drawHistory[k];
-      document.getElementById(`btn_draw_${k}`).disabled = true;
-      let groupLabel = (d.teamSlot <= 2) ? "BK1" : "BK2";
-      document.getElementById(`draw_log_${k}`).innerHTML = `<span>${d.captain}:</span> <span style="font-weight:700; color:#16a34a"> Ghép với [${d.member}] ➔ Đội ${d.teamSlot} (${groupLabel})</span>`;
-    });
-  }
-
-  nameIds.forEach(id => { const val = localStorage.getItem(id); if (val !== null) document.getElementById(id).value = val; });
-  scoreIds.forEach(id => { const val = localStorage.getItem(id); if (val !== null) document.getElementById(id).value = val; });
-  updateNames();
 }
 
-// Hàm xóa sạch làm lại từ đầu (Đã sửa để xóa các key input bốc thăm mới thêm)
+// RESET TOÀN BỘ GIẢI ĐẤU (XÓA NODE TRÊN FIREBASE)
 function clearTournament() {
-  if (confirm("Xóa toàn bộ tiến trình bốc thăm, tên và điểm số để làm lại?")) {
-    localStorage.clear();
-    resetDrawOnly();
-    // Reset lại text mặc định ban đầu cho input bốc thăm
-    for(let i=1; i<=4; i++) {
-      document.getElementById(`cap_${i}`).value = `Đội Trưởng ${String.fromCharCode(64 + i)}`;
-      document.getElementById(`mem_${i}`).value = `Thành Viên ${i}`;
-    }
-    nameIds.forEach(id => document.getElementById(id).value = "");
-    scoreIds.forEach(id => document.getElementById(id).value = "");
-    updateNames();
+  if (confirm("Xóa TOÀN BỘ tiến trình giải đấu trên Cloud Firebase để bắt đầu lại từ đầu?")) {
+    tournamentRef.remove();
   }
 }
-loadSavedData();
+
+// Hàm dự phòng dọn dẹp UI nội bộ khi Firebase trống
+function resetFormUI() {
+  for(let i=1; i<=4; i++) {
+    document.getElementById(`cap_${i}`).value = `Đội Trưởng ${String.fromCharCode(64 + i)}`;
+    document.getElementById(`mem_${i}`).value = `Thành Viên ${i}`;
+    document.getElementById(`btn_draw_${i}`).disabled = false;
+    document.getElementById(`draw_log_${i}`).innerHTML = `<span>Đội trưởng ${String.fromCharCode(64 + i)}:</span> <span style="font-weight:bold; color:var(--text3)">Chờ bấm...</span>`;
+  }
+  nameIds.forEach(id => document.getElementById(id).value = "");
+  scoreIds.forEach(id => document.getElementById(id).value = "");
+  drawHistory = {};
+  poolMembers = [];
+  poolTeams = [1, 2, 3, 4];
+  updateNamesLocal();
+}
 </script>
 </body>
 </html>

@@ -687,6 +687,12 @@ const nameIds = ['t1_p1','t1_p2', 't2_p1','t2_p2', 't3_p1','t3_p2', 't4_p1','t4_
 function executeDraw(captainIndex) {
   // Đồng bộ lại pool nếu đây là lượt bấm đầu tiên
   if (poolMembers.length === 0 && Object.keys(drawHistory).length === 0) {
+    // Lưu lại danh sách tên input vào localStorage để khi reload không bị mất
+    for(let i=1; i<=4; i++) {
+      localStorage.setItem(`cap_${i}`, document.getElementById(`cap_${i}`).value.trim());
+      localStorage.setItem(`mem_${i}`, document.getElementById(`mem_${i}`).value.trim());
+    }
+
     for(let i=1; i<=4; i++) {
       let mVal = document.getElementById(`mem_${i}`).value.trim();
       poolMembers.push(mVal || `Thành Viên ${i}`);
@@ -893,7 +899,16 @@ function calcAll() {
   else { document.getElementById('f_3rd').textContent = "Chờ tranh hạng ba..."; document.getElementById('f_4th').textContent = "—"; }
 }
 
+// Hàm tải lại dữ liệu (Đã sửa để khôi phục cả danh sách bốc thăm ban đầu)
 function loadSavedData() {
+  // Phục hồi giá trị các ô Input bốc thăm ban đầu nếu có
+  for(let i=1; i<=4; i++) {
+    const savedCap = localStorage.getItem(`cap_${i}`);
+    const savedMem = localStorage.getItem(`mem_${i}`);
+    if (savedCap !== null) document.getElementById(`cap_${i}`).value = savedCap;
+    if (savedMem !== null) document.getElementById(`mem_${i}`).value = savedMem;
+  }
+
   // Phục hồi log bốc thăm nếu có
   const savedDraw = localStorage.getItem('cached_draw_history');
   if (savedDraw) {
@@ -903,7 +918,8 @@ function loadSavedData() {
     Object.keys(drawHistory).forEach(k => {
       let d = drawHistory[k];
       document.getElementById(`btn_draw_${k}`).disabled = true;
-      document.getElementById(`draw_log_${k}`).innerHTML = `<span>${d.captain}:</span> <span style="font-weight:700; color:#16a34a"> Ghép với [${d.member}] ➔ Đội ${d.teamSlot}</span>`;
+      let groupLabel = (d.teamSlot <= 2) ? "BK1" : "BK2";
+      document.getElementById(`draw_log_${k}`).innerHTML = `<span>${d.captain}:</span> <span style="font-weight:700; color:#16a34a"> Ghép với [${d.member}] ➔ Đội ${d.teamSlot} (${groupLabel})</span>`;
     });
   }
 
@@ -912,16 +928,21 @@ function loadSavedData() {
   updateNames();
 }
 
+// Hàm xóa sạch làm lại từ đầu (Đã sửa để xóa các key input bốc thăm mới thêm)
 function clearTournament() {
   if (confirm("Xóa toàn bộ tiến trình bốc thăm, tên và điểm số để làm lại?")) {
     localStorage.clear();
     resetDrawOnly();
+    // Reset lại text mặc định ban đầu cho input bốc thăm
+    for(let i=1; i<=4; i++) {
+      document.getElementById(`cap_${i}`).value = `Đội Trưởng ${String.fromCharCode(64 + i)}`;
+      document.getElementById(`mem_${i}`).value = `Thành Viên ${i}`;
+    }
     nameIds.forEach(id => document.getElementById(id).value = "");
     scoreIds.forEach(id => document.getElementById(id).value = "");
     updateNames();
   }
 }
-
 loadSavedData();
 </script>
 </body>

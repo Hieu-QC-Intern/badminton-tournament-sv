@@ -624,6 +624,7 @@ function createNewTournament() {
 }
 
 // ❌ CHỨC NĂNG XÓA GIẢI ĐẤU TOÀN DIỆN CỦA SUPER ADMIN
+// ❌ CHỨC NĂNG XÓA GIẢI ĐẤU TOÀN DIỆN CỦA SUPER ADMIN (ĐÃ SỬA LỖI MẬT KHẨU)
 function deleteTournamentPermanently() {
   const selectEl = document.getElementById('tournament_select');
   const idToDelete = selectEl.value;
@@ -641,25 +642,38 @@ function deleteTournamentPermanently() {
 
   // Yêu cầu nhập mật khẩu quyền lực tối cao
   const inputSuperPass = prompt("Xác thực tối cao: Nhập MẬT KHẨU ADMIN TỐI CAO để thực hiện thao tác xóa này:");
-  if (inputSuperPass === null) return;
+  if (inputSuperPass === null) return; // Người dùng bấm Hủy
   
-  // Mã hóa mật khẩu gõ vào rồi so sánh với mã Hash tối cao
-  const inputHash = CryptoJS.SHA256(inputSuperPass.trim()).toString();
-  if (inputHash !== SUPER_ADMIN_HASH) {
+  // Chuẩn hóa chuỗi gõ vào: Bỏ khoảng trắng dư thừa
+  const cleanPass = inputSuperPass.trim();
+  if (cleanPass === "") {
+    alert("Mật khẩu không được để trống!");
+    return;
+  }
+  
+  // Tiến hành băm mật khẩu gõ vào thành SHA-256 (Viết thường toàn bộ chuỗi băm để tránh lệch ký tự)
+  const inputHash = CryptoJS.SHA256(cleanPass).toString(CryptoJS.enc.Hex).toLowerCase();
+  
+  // Chuỗi Hash chuẩn của mật khẩu "260197"
+  const targetHash = "6e42b9347a505b2a0ffeb054f0fa3c4415840d04db96c81bf373fc345df990b7";
+
+  // So sánh trực tiếp chuỗi mã hóa, HOÀN TOÀN KHÔNG phụ thuộc vào biến Firebase cũ
+  if (inputHash !== targetHash) {
     alert("❌ Sai mật khẩu Admin tối cao! Thao tác xóa bị từ chối.");
     return;
   }
 
-  // Thực hiện xóa đồng thời trên cả 2 node quản lý của Firebase
+  // Thực hiện xóa đồng thời trên cả 2 node quản lý của Firebase nếu khớp mã hóa
   db.ref('tournaments_list/' + idToDelete).remove().then(() => {
     db.ref('tournaments_data/' + idToDelete).remove().then(() => {
       alert(`Đã xóa sạch dữ liệu giải đấu [${nameTournament}] thành công!`);
-      document.getElementById('tournament_search').value = ""; // Reset bộ lọc
-      currentTournamentId = "giai_mac_dinh"; // Đưa về giải mặc định
+      document.getElementById('tournament_search').value = ""; // Reset bộ lọc tìm kiếm
+      currentTournamentId = "giai_mac_dinh"; // Đưa màn hình về giải mặc định
     });
+  }).catch((error) => {
+    alert("Lỗi kết nối Firebase không thể xóa: " + error.message);
   });
 }
-
 function switchTournament(id) {
   if(!id || id.startsWith("(")) return;
   currentTournamentId = id;

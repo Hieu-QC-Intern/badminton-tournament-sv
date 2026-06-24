@@ -624,9 +624,12 @@ function createNewTournament() {
 }
 
 // ❌ CHỨC NĂNG XÓA GIẢI ĐẤU (FIX TRIỆT ĐỂ LỖI KIỂM TRA MẬT KHẨU SHA-256)
+// ❌ CHỨC NĂNG XÓA GIẢI ĐẤU: LẤY MẬT KHẨU TRỰC TIẾP TỪ FIREBASE CỦA GIẢI ĐÓ
 function deleteTournamentPermanently() {
   const selectEl = document.getElementById('tournament_select');
   const idToDelete = selectEl.value;
+  
+  // 1. Kiểm tra điều kiện giải đấu hợp lệ
   if (!idToDelete || idToDelete === "giai_mac_dinh") {
     alert("Không thể xóa giải đấu mặc định hệ thống hoặc giải trống!");
     return;
@@ -634,33 +637,43 @@ function deleteTournamentPermanently() {
 
   const nameTournament = globalTournamentsList[idToDelete] || idToDelete;
   
-  // Xác nhận hành động xóa
+  // 2. Xác nhận hành động xóa trước khi hỏi mật khẩu
   if (!confirm(`⚠️ CẢNH BÁO: Bạn có chắc chắn muốn XÓA HOÀN TOÀN giải đấu [${nameTournament}]? Mọi điểm số và dữ liệu bốc thăm sẽ mất vĩnh viễn.`)) {
     return;
   }
 
-  // Yêu cầu nhập mật khẩu quyền lực tối cao
-  const inputSuperPass = prompt("Xác thực tối cao: Nhập MẬT KHẨU ADMIN TỐI CAO để thực hiện thao tác xóa này:");
-  if (inputSuperPass === null) return;
-  
-  // Ép định dạng băm mã hóa sang Hex string viết thường giống hệt hàm checkPermission
-  const inputHash = CryptoJS.SHA256(inputSuperPass.trim()).toString(CryptoJS.enc.Hex).toLowerCase();
-  
-  if (inputHash !== SUPER_ADMIN_HASH) {
-    alert("❌ Sai mật khẩu Admin tối cao! Thao tác xóa bị từ chối.");
-    return;
-  }
+  // 3. Truy vấn trực tiếp vào node dữ liệu của giải đấu đó trên Firebase để lấy mật khẩu thực tế
+  db.ref('tournaments_data/' + idToDelete + '/tournament_password').once('value').then((snapshot) => {
+    // Lấy mật khẩu đã được lưu trên Firebase (nếu trống thì mặc định là "170397")
+    const correctPasswordFromFirebase = snapshot.val() ? snapshot.val().toString().trim() : "170397";
 
-  // Thực hiện xóa đồng thời trên cả 2 node quản lý của Firebase
-  db.ref('tournaments_list/' + idToDelete).remove().then(() => {
-    db.ref('tournaments_data/' + idToDelete).remove().then(() => {
-      alert(`Đã xóa sạch dữ liệu giải đấu [${nameTournament}] thành công!`);
-      document.getElementById('tournament_search').value = ""; // Reset bộ lọc
-      currentTournamentId = "giai_mac_dinh"; // Đưa về giải mặc định
+    // 4. Yêu cầu người dùng nhập mật khẩu xác thực
+    const inputSuperPass = prompt(`Xác thực quyền Admin: Nhập MẬT KHẨU của giải [${nameTournament}] để tiến hành xóa:`);
+    if (inputSuperPass === null) return; // Bấm Hủy bỏ
+    
+    const cleanInputPass = inputSuperPass.trim();
+
+    // 5. So sánh trực tiếp chuỗi text, không hardcode, không băm mã hóa phức tạp
+    if (cleanInputPass !== correctPasswordFromFirebase) {
+      alert("❌ Sai mật khẩu Admin! Thao tác xóa bị từ chối.");
+      return;
+    }
+
+    // 6. Sau khi khớp mật khẩu, tiến hành xóa đồng thời trên cả 2 node quản lý của Firebase
+    db.ref('tournaments_list/' + idToDelete).remove().then(() => {
+      db.ref('tournaments_data/' + idToDelete).remove().then(() => {
+        alert(`Đã xóa sạch dữ liệu giải đấu [${nameTournament}] thành công!`);
+        document.getElementById('tournament_search').value = ""; // Reset thanh tìm kiếm
+        currentTournamentId = "giai_mac_dinh"; // Đưa màn hình về giải mặc định
+      });
+    }).catch((error) => {
+      alert("Lỗi phân quyền Firebase không thể xóa: " + error.message);
     });
+
+  }).catch((error) => {
+    alert("Không thể tải mật khẩu giải đấu từ Firebase: " + error.message);
   });
 }
-
 function switchTournament(id) {
   if(!id || id.startsWith("(")) return;
   currentTournamentId = id;

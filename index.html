@@ -486,7 +486,13 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+  
+// 👇 THÊM 2 ĐOẠN NÀY VÀO ĐÂY
+let superAdminPasswordFromFirebase = "";
 
+db.ref('admin_config/super_admin_password').on('value', (snapshot) => {
+  superAdminPasswordFromFirebase = snapshot.val() ? snapshot.val().toString().trim() : "";
+});
 let currentTournamentId = "giai_mac_dinh"; 
 let dbRef = null; 
 let currentTournamentPassword = "170397"; 

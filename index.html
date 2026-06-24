@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Giải Cầu Lông Sân Vườn - LocalStorage & Mobile</title>
+<title>Giải Cầu Lông Sân Vườn - Có Bốc Thăm Chia Bảng</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -47,16 +47,97 @@ body {
 .header-sub { font-size: 0.75rem; color: var(--text3); margin-top: 4px; line-height: 1.3; }
 
 .section-title {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--text3);
+  color: var(--text2);
   text-align: center;
-  margin: 16px 0 8px;
+  margin: 20px 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
-/* ── INPUT BOX ── */
+/* ── KHU VỰC BỐC THĂM MỚI ── */
+.draw-box {
+  background: #fff;
+  border: 2px dashed #0ea5e9;
+  border-radius: 12px;
+  padding: 14px;
+  max-width: 800px;
+  margin: 0 auto 16px;
+  box-shadow: var(--shadow);
+}
+.draw-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.draw-list-group {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 10px;
+  border-radius: 8px;
+}
+.draw-list-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text2);
+}
+.draw-list-group input {
+  width: 100%;
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 6px;
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+  outline: none;
+}
+.draw-actions {
+  grid-column: span 2;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 6px;
+}
+.btn-draw-captain {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #16a34a;
+  padding: 10px 4px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+}
+.btn-draw-captain:disabled {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+.draw-results-preview {
+  grid-column: span 2;
+  background: #fafafa;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 4px;
+}
+.preview-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  padding: 4px 0;
+  border-bottom: 1px dashed var(--border);
+}
+.preview-row:last-child { border: none; }
+
+/* ── INPUT BOX CÁC ĐỘI ── */
 .setup-box {
   background: var(--surface);
   border: 1.5px solid var(--border);
@@ -122,11 +203,7 @@ body {
   border: 1px solid var(--border2);
   text-align: center;
 }
-.sched-table td {
-  padding: 10px 6px;
-  border: 1px solid var(--border);
-  text-align: center;
-}
+.sched-table td { padding: 10px 6px; border: 1px solid var(--border); text-align: center; }
 .cell-left { text-align: left !important; }
 
 .match-label {
@@ -144,48 +221,13 @@ body {
 .player-display { font-weight: 600; color: var(--text); display: block; word-break: break-word; }
 
 /* ── SCORE STEPPER ── */
-.score-stepper-container {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-.score-stepper {
-  display: inline-flex;
-  align-items: center;
-  border: 1.5px solid var(--border2);
-  border-radius: 8px;
-  overflow: hidden;
-  background: #fff;
-}
-.btn-step {
-  width: 32px;
-  height: 34px;
-  border: none;
-  background: #f8fafc;
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: var(--text2);
-  cursor: pointer;
-  user-select: none;
-  -webkit-user-select: none;
-}
+.score-stepper-container { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.score-stepper { display: inline-flex; align-items: center; border: 1.5px solid var(--border2); border-radius: 8px; overflow: hidden; background: #fff; }
+.btn-step { width: 32px; height: 34px; border: none; background: #f8fafc; font-size: 1.1rem; font-weight: bold; color: var(--text2); cursor: pointer; user-select: none; -webkit-user-select: none; }
 .btn-step:active { background: #e2e8f0; }
 
-.score-in {
-  width: 38px;
-  height: 34px;
-  border: none;
-  border-left: 1px solid var(--border2);
-  border-right: 1px solid var(--border2);
-  text-align: center;
-  font-size: 0.95rem;
-  font-weight: 700;
-  outline: none;
-  -moz-appearance: textfield;
-}
-.score-in::-webkit-outer-spin-button,
-.score-in::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.score-in { width: 38px; height: 34px; border: none; border-left: 1px solid var(--border2); border-right: 1px solid var(--border2); text-align: center; font-size: 0.95rem; font-weight: 700; outline: none; }
+.score-in::-webkit-outer-spin-button, .score-in::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
 .score-stepper.win-style { border-color: #86efac; background: #f0fdf4; }
 .score-stepper.win-style .score-in { background: #f0fdf4; color: var(--green); }
@@ -193,7 +235,6 @@ body {
 .score-stepper.lose-style .score-in { background: #fef2f2; color: var(--red); }
 
 .score-colon { font-weight: bold; color: var(--text3); font-size: 1.1rem; }
-
 .conditional-row { display: none; background: #fafafa; }
 .conditional-row.show { display: table-row; }
 
@@ -207,57 +248,25 @@ body {
   margin: 16px auto 0;
   box-shadow: 0 4px 20px #ea580c08;
 }
-.final-title {
-  text-align: center;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #92400e;
-  margin-bottom: 12px;
-}
-.final-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
-  border-radius: 8px;
-  margin-bottom: 6px;
-  background: #fff;
-  border: 1px solid #fde68a;
-}
+.final-title { text-align: center; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #92400e; margin-bottom: 12px; }
+.final-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; margin-bottom: 6px; background: #fff; border: 1px solid #fde68a; }
 .final-medal { font-size: 1.2rem; width: 28px; text-align: center; }
 .final-name  { flex: 1; font-size: 0.85rem; font-weight: 700; color: var(--text); }
 .final-label { font-size: 0.6rem; color: var(--text3); font-weight: bold; }
 
-/* Nút xóa làm mới dữ liệu giải đấu */
-.reset-container { text-align: center; margin-top: 20px; }
-.btn-reset {
-  background: #ef4444;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  border-radius: 8px;
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
-}
-.btn-reset:active { background: #b91c1c; }
+.reset-container { text-align: center; margin-top: 20px; display: flex; justify-content: center; gap: 10px; }
+.btn-reset { background: #ef4444; color: white; border: none; padding: 8px 16px; font-size: 0.8rem; font-weight: 700; border-radius: 8px; cursor: pointer; }
+.btn-secondary { background: #64748b; color: white; border: none; padding: 8px 16px; font-size: 0.8rem; font-weight: 700; border-radius: 8px; cursor: pointer; }
 
-/* ── RESPONSIVE CHUYỂN BẢNG THÀNH CARDS ── */
+/* ── RESPONSIVE ── */
 @media (max-width: 768px) {
+  .draw-grid { grid-template-columns: 1fr; }
+  .draw-actions { grid-column: span 1; grid-template-columns: repeat(2, 1fr); }
+  .draw-results-preview { grid-column: span 1; }
   .team-inputs { grid-template-columns: 1fr; gap: 8px; }
   .sched-table thead { display: none; }
   .sched-table, .sched-table tbody, .sched-table tr, .sched-table td { display: block; width: 100%; }
-  
-  .sched-table tr {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    margin-bottom: 12px;
-    padding: 10px;
-  }
+  .sched-table tr { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 12px; padding: 10px; }
   .sched-table tr.conditional-row { display: none; }
   .sched-table tr.conditional-row.show { display: block; }
   .sched-table td { border: none; padding: 4px 0; text-align: left; }
@@ -265,10 +274,7 @@ body {
   .sched-table td:nth-child(1)::before { content: "Lượt "; }
   .sched-table td:nth-child(2) { display: inline-block; margin-right: 8px; }
   .sched-table td:nth-child(3) { display: inline-block; font-size: 0.75rem; color: var(--text2); font-weight: bold; }
-  
-  .sched-table td:nth-child(4), .sched-table td:nth-child(6) { 
-    display: block; width: 100%; padding: 6px 4px; background: #fff; border-radius: 6px; margin: 4px 0; border: 1px dashed var(--border); padding-left: 8px !important;
-  }
+  .sched-table td:nth-child(4), .sched-table td:nth-child(6) { display: block; width: 100%; padding: 6px 4px; background: #fff; border-radius: 6px; margin: 4px 0; border: 1px dashed var(--border); padding-left: 8px !important; }
   .sched-table td:nth-child(5) { display: flex; justify-content: center; padding: 8px 0; }
 }
 </style>
@@ -277,45 +283,80 @@ body {
 
 <div class="header">
   <div class="header-badge">🏸 Giải Cầu Lông Sân Vườn</div>
-  <h1>Lịch Thi Đấu Xoay Tua</h1>
-  <p class="header-sub">Tự động lưu trữ thông minh. Tắt trình duyệt hoặc tải lại trang không sợ mất điểm!</p>
+  <h1>Hệ Thống Bốc Thăm & Nhập Điểm</h1>
+  <p class="header-sub">Nhập Đội trưởng & Thành viên để quay số ghép cặp ngẫu nhiên vào các nhánh đấu tự động</p>
 </div>
 
-<div class="section-title">⬇ Nhập tên thành viên từng cặp (Đội)</div>
+<div class="section-title">🎲 Bước 1: Bốc thăm ghép đội và Chia bảng</div>
+<div class="draw-box">
+  <div class="draw-grid">
+    <div class="draw-list-group">
+      <div class="draw-list-title">👑 Danh sách Đội Trưởng</div>
+      <input id="cap_1" value="Đội Trưởng A">
+      <input id="cap_2" value="Đội Trưởng B">
+      <input id="cap_3" value="Đội Trưởng C">
+      <input id="cap_4" value="Đội Trưởng D">
+    </div>
+    <div class="draw-list-group">
+      <div class="draw-list-title">🏸 Danh sách Thành Viên</div>
+      <input id="mem_1" value="Thành Viên 1">
+      <input id="mem_2" value="Thành Viên 2">
+      <input id="mem_3" value="Thành Viên 3">
+      <input id="mem_4" value="Thành Viên 4">
+    </div>
+    
+    <div class="draw-actions" id="draw-buttons-block">
+      <button class="btn-draw-captain" id="btn_draw_1" onclick="executeDraw(1)">🎁 Đội trưởng A</button>
+      <button class="btn-draw-captain" id="btn_draw_2" onclick="executeDraw(2)">🎁 Đội trưởng B</button>
+      <button class="btn-draw-captain" id="btn_draw_3" onclick="executeDraw(3)">🎁 Đội trưởng C</button>
+      <button class="btn-draw-captain" id="btn_draw_4" onclick="executeDraw(4)">🎁 Đội trưởng D</button>
+    </div>
+
+    <div class="draw-results-preview">
+      <div class="draw-list-title" style="color: #0ea5e9;">📋 Nhật ký bốc thăm thực tế</div>
+      <div id="draw_log_1" class="preview-row"><span>Đội trưởng A:</span> <span style="font-weight:bold; color:var(--text3)">Chờ bấm...</span></div>
+      <div id="draw_log_2" class="preview-row"><span>Đội trưởng B:</span> <span style="font-weight:bold; color:var(--text3)">Chờ bấm...</span></div>
+      <div id="draw_log_3" class="preview-row"><span>Đội trưởng C:</span> <span style="font-weight:bold; color:var(--text3)">Chờ bấm...</span></div>
+      <div id="draw_log_4" class="preview-row"><span>Đội trưởng D:</span> <span style="font-weight:bold; color:var(--text3)">Chờ bấm...</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="section-title">👥 Sắp xếp Cặp Đấu (Tự động điền sau khi bốc thăm)</div>
 <div class="setup-box">
   <div class="team-inputs">
     <div class="team-group">
       <div class="team-group-title" style="color:#2563eb;">🔵 Cặp đấu số 1 (BK1)</div>
       <div class="input-pair">
-        <input id="t1_p1" placeholder="Thành viên 1..." value="Team 1A" oninput="saveAndResetNames()">
-        <input id="t1_p2" placeholder="Thành viên 2..." value="Team 1B" oninput="saveAndResetNames()">
+        <input id="t1_p1" placeholder="Đội trưởng..." oninput="saveAndResetNames()">
+        <input id="t1_p2" placeholder="Thành viên..." oninput="saveAndResetNames()">
       </div>
     </div>
     <div class="team-group">
       <div class="team-group-title" style="color:#d97706;">🟡 Cặp đấu số 2 (BK1)</div>
       <div class="input-pair">
-        <input id="t2_p1" placeholder="Thành viên 1..." value="Team 2A" oninput="saveAndResetNames()">
-        <input id="t2_p2" placeholder="Thành viên 2..." value="Team 2B" oninput="saveAndResetNames()">
+        <input id="t2_p1" placeholder="Đội trưởng..." oninput="saveAndResetNames()">
+        <input id="t2_p2" placeholder="Thành viên..." oninput="saveAndResetNames()">
       </div>
     </div>
     <div class="team-group">
       <div class="team-group-title" style="color:#059669;">🟢 Cặp đấu số 3 (BK2)</div>
       <div class="input-pair">
-        <input id="t3_p1" placeholder="Thành viên 1..." value="Team 3A" oninput="saveAndResetNames()">
-        <input id="t3_p2" placeholder="Thành viên 2..." value="Team 3B" oninput="saveAndResetNames()">
+        <input id="t3_p1" placeholder="Đội trưởng..." oninput="saveAndResetNames()">
+        <input id="t3_p2" placeholder="Thành viên..." oninput="saveAndResetNames()">
       </div>
     </div>
     <div class="team-group">
       <div class="team-group-title" style="color:#e11d48;">🔴 Cặp đấu số 4 (BK2)</div>
       <div class="input-pair">
-        <input id="t4_p1" placeholder="Thành viên 1..." value="Team 4A" oninput="saveAndResetNames()">
-        <input id="t4_p2" placeholder="Thành viên 2..." value="Team 4B" oninput="saveAndResetNames()">
+        <input id="t4_p1" placeholder="Đội trưởng..." oninput="saveAndResetNames()">
+        <input id="t4_p2" placeholder="Thành viên..." oninput="saveAndResetNames()">
       </div>
     </div>
   </div>
 </div>
 
-<div class="section-title">📅 Lịch thi đấu và nhập điểm</div>
+<div class="section-title">📅 Bước 2: Theo dõi lịch thi đấu & Nhập điểm nhanh</div>
 <div class="schedule-box">
   <table class="sched-table">
     <thead>
@@ -625,31 +666,102 @@ body {
 </div>
 
 <div class="reset-container">
-  <button class="btn-reset" onclick="clearTournament()">🔄 Xóa hết làm mới giải đấu</button>
+  <button class="btn-secondary" onclick="resetDrawOnly()">🎲 Reset lượt Bốc Thăm</button>
+  <button class="btn-reset" onclick="clearTournament()">🔄 Xóa sạch làm lại từ đầu</button>
 </div>
 
 <script>
-// Danh sách tất cả ID điểm số cần lưu trữ
+// Quản lý trạng thái Bốc thăm nội bộ
+let poolMembers = [];
+let poolTeams = [1, 2, 3, 4];
+let drawHistory = {}; 
+
 const scoreIds = [
   's_l1_1','s_l1_2', 's_l2_3','s_l2_4', 's_l3_1','s_l3_2', 's_l4_3','s_l4_4',
   's_l5_1','s_l5_2', 's_l6_3','s_l6_4', 's_l7_lost1','s_l7_lost2', 's_l8_win1','s_l8_win2',
   's_l9_lost1','s_l9_lost2', 's_l10_win1','s_l10_win2', 's_l11_lost1','s_l11_lost2', 's_l12_win1','s_l12_win2'
 ];
+const nameIds = ['t1_p1','t1_p2', 't2_p1','t2_p2', 't3_p1','t3_p2', 't4_p1','t4_p2'];
 
-// Danh sách ID tên vận động viên
-const nameIds = [
-  't1_p1','t1_p2', 't2_p1','t2_p2', 't3_p1','t3_p2', 't4_p1','t4_p2'
-];
+// Hàm xử lý lõi Cơ Chế Bốc Thăm
+function executeDraw(captainIndex) {
+  // Đồng bộ lại pool nếu đây là lượt bấm đầu tiên
+  if (poolMembers.length === 0 && Object.keys(drawHistory).length === 0) {
+    for(let i=1; i<=4; i++) {
+      let mVal = document.getElementById(`mem_${i}`).value.trim();
+      poolMembers.push(mVal || `Thành Viên ${i}`);
+    }
+    poolTeams = [1, 2, 3, 4];
+  }
 
-// Hàm tăng giảm điểm bằng nút bấm di động
+  const captainName = document.getElementById(`cap_${captainIndex}`).value.trim() || `Đội Trưởng ${String.fromCharCode(64 + captainIndex)}`;
+  
+  // Tiến hành Random lấy 1 Thành viên và 1 số Đội đấu
+  const randMemIdx = Math.floor(Math.random() * poolMembers.length);
+  const chosenMember = poolMembers.splice(randMemIdx, 1)[0];
+
+  const randTeamIdx = Math.floor(Math.random() * poolTeams.length);
+  const chosenTeamSlot = poolTeams.splice(randTeamIdx, 1)[0];
+
+  // Lưu lịch sử
+  drawHistory[captainIndex] = {
+    captain: captainName,
+    member: chosenMember,
+    teamSlot: chosenTeamSlot
+  };
+
+  // Cập nhật giao diện log bốc thăm sinh động
+  let targetRow = document.getElementById(`draw_log_${captainIndex}`);
+  let groupLabel = (chosenTeamSlot <= 2) ? "BK1" : "BK2";
+  targetRow.innerHTML = `<span>${captainName}:</span> <span style="font-weight:700; color:#16a34a"> Ghép với [${chosenMember}] ➔ Đội ${chosenTeamSlot} (${groupLabel})</span>`;
+  
+  // Khóa nút vừa bấm lại
+  document.getElementById(`btn_draw_${captainIndex}`).disabled = true;
+
+  // Lưu trạng thái bốc thăm tạm thời vào Storage
+  localStorage.setItem('cached_draw_history', JSON.stringify(drawHistory));
+  localStorage.setItem('cached_pool_members', JSON.stringify(poolMembers));
+  localStorage.setItem('cached_pool_teams', JSON.stringify(poolTeams));
+
+  // Kiểm tra nếu tất cả 4 đội trưởng đã bấm xong ➔ Tiến hành Auto-fill dữ liệu xuống dưới
+  if (Object.keys(drawHistory).length === 4) {
+    autoFillTournamentRows();
+  }
+}
+
+function autoFillTournamentRows() {
+  // Điền dữ liệu bốc thăm vào form Đội đấu
+  Object.keys(drawHistory).forEach(key => {
+    let data = drawHistory[key];
+    let slot = data.teamSlot;
+    document.getElementById(`t${slot}_p1`).value = data.captain;
+    document.getElementById(`t${slot}_p2`).value = data.member;
+  });
+
+  saveAndResetNames();
+}
+
+function resetDrawOnly() {
+  poolMembers = [];
+  poolTeams = [1, 2, 3, 4];
+  drawHistory = {};
+  localStorage.removeItem('cached_draw_history');
+  localStorage.removeItem('cached_pool_members');
+  localStorage.removeItem('cached_pool_teams');
+
+  for(let i=1; i<=4; i++) {
+    document.getElementById(`btn_draw_${i}`).disabled = false;
+    document.getElementById(`draw_log_${i}`).innerHTML = `<span>Đội trưởng ${String.fromCharCode(64 + i)}:</span> <span style="font-weight:bold; color:var(--text3)">Chờ bấm...</span>`;
+  }
+}
+
+// HÀM STEPPER DI ĐỘNG & LOGIC GIẢI ĐẤU GIỮ NGUYÊN
 function step(id, amount) {
   const el = document.getElementById(id);
   let current = parseInt(el.value);
   if (isNaN(current)) current = 0;
-  
   let newValue = current + amount;
   if (newValue < 0) newValue = 0;
-  
   el.value = newValue;
   calcAll();
 }
@@ -662,10 +774,7 @@ function getTeamName(num) {
 }
 
 function saveAndResetNames() {
-  // Lưu tên vào LocalStorage khi gõ
-  nameIds.forEach(id => {
-    localStorage.setItem(id, document.getElementById(id).value);
-  });
+  nameIds.forEach(id => { localStorage.setItem(id, document.getElementById(id).value); });
   updateNames();
 }
 
@@ -679,7 +788,6 @@ function updateNames() {
   document.getElementById('lbl_l4_t3').textContent = n3; document.getElementById('lbl_l4_t4').textContent = n4;
   document.getElementById('lbl_l5_t1').textContent = n1; document.getElementById('lbl_l5_t2').textContent = n2;
   document.getElementById('lbl_l6_t3').textContent = n3; document.getElementById('lbl_l6_t4').textContent = n4;
-  
   calcAll();
 }
 
@@ -692,32 +800,14 @@ function styleInputPair(id1, id2) {
   const v1 = parseScore(id1), v2 = parseScore(id2);
   const step1 = document.getElementById('step_' + id1);
   const step2 = document.getElementById('step_' + id2);
-  
-  if(v1 === null || v2 === null) { 
-    step1.className = 'score-stepper'; 
-    step2.className = 'score-stepper'; 
-    return; 
-  }
-  
-  if (v1 > v2) {
-    step1.className = 'score-stepper win-style';
-    step2.className = 'score-stepper lose-style';
-  } else if (v2 > v1) {
-    step1.className = 'score-stepper lose-style';
-    step2.className = 'score-stepper win-style';
-  } else {
-    step1.className = 'score-stepper';
-    step2.className = 'score-stepper';
-  }
+  if(v1 === null || v2 === null) { step1.className = 'score-stepper'; step2.className = 'score-stepper'; return; }
+  if (v1 > v2) { step1.className = 'score-stepper win-style'; step2.className = 'score-stepper lose-style'; }
+  else if (v2 > v1) { step1.className = 'score-stepper lose-style'; step2.className = 'score-stepper win-style'; }
+  else { step1.className = 'score-stepper'; step2.className = 'score-stepper'; }
 }
 
 function calcAll() {
-  // Tự động lưu toàn bộ điểm vào LocalStorage bất cứ khi nào có thay đổi
-  scoreIds.forEach(id => {
-    localStorage.setItem(id, document.getElementById(id).value);
-  });
-
-  // Đồng bộ màu sắc cặp nút bấm
+  scoreIds.forEach(id => { localStorage.setItem(id, document.getElementById(id).value); });
   const pairs = [
     ['s_l1_1','s_l1_2'], ['s_l2_3','s_l2_4'], ['s_l3_1','s_l3_2'], ['s_l4_3','s_l4_4'],
     ['s_l5_1','s_l5_2'], ['s_l6_3','s_l6_4'], ['s_l7_lost1','s_l7_lost2'], ['s_l8_win1','s_l8_win2'],
@@ -729,18 +819,14 @@ function calcAll() {
   let bk1_1 = 0, bk1_2 = 0;
   let s1_1 = parseScore('s_l1_1'), s1_2 = parseScore('s_l1_2');
   let s3_1 = parseScore('s_l3_1'), s3_2 = parseScore('s_l3_2');
-  
   if(s1_1 !== null && s1_2 !== null) { if(s1_1 > s1_2) bk1_1++; else if(s1_1 < s1_2) bk1_2++; }
   if(s3_1 !== null && s3_2 !== null) { if(s3_1 > s3_2) bk1_1++; else if(s3_1 < s3_2) bk1_2++; }
-  
   let showBK1_S3 = (bk1_1 === 1 && bk1_2 === 1);
   document.getElementById('row_l5').classList.toggle('show', showBK1_S3);
-  
   if(showBK1_S3) {
     let s5_1 = parseScore('s_l5_1'), s5_2 = parseScore('s_l5_2');
     if(s5_1 !== null && s5_2 !== null) { if(s5_1 > s5_2) bk1_1++; else if(s5_1 < s5_2) bk1_2++; }
   }
-  
   let winBK1 = null, lostBK1 = null;
   if(bk1_1 >= 2) { winBK1 = getTeamName(1); lostBK1 = getTeamName(2); }
   else if(bk1_2 >= 2) { winBK1 = getTeamName(2); lostBK1 = getTeamName(1); }
@@ -749,28 +835,20 @@ function calcAll() {
   let bk2_3 = 0, bk2_4 = 0;
   let s2_3 = parseScore('s_l2_3'), s2_4 = parseScore('s_l2_4');
   let s4_3 = parseScore('s_l4_3'), s4_4 = parseScore('s_l4_4');
-  
   if(s2_3 !== null && s2_4 !== null) { if(s2_3 > s2_4) bk2_3++; else if(s2_3 < s2_4) bk2_4++; }
   if(s4_3 !== null && s4_4 !== null) { if(s4_3 > s4_4) bk2_3++; else if(s4_3 < s4_4) bk2_4++; }
-
   let showBK2_S3 = (bk2_3 === 1 && bk2_4 === 1);
   document.getElementById('row_l6').classList.toggle('show', showBK2_S3);
-  
   if(showBK2_S3) {
     let s6_3 = parseScore('s_l6_3'), s6_4 = parseScore('s_l6_4');
     if(s6_3 !== null && s6_4 !== null) { if(s6_3 > s6_4) bk2_3++; else if(s6_3 < s6_4) bk2_4++; }
   }
-
   let winBK2 = null, lostBK2 = null;
   if(bk2_3 >= 2) { winBK2 = getTeamName(3); lostBK2 = getTeamName(4); }
   else if(bk2_4 >= 2) { winBK2 = getTeamName(4); lostBK2 = getTeamName(3); }
 
-  // Gán nhãn tên cho nhánh Hạng Ba và Chung Kết
-  const lb_w1 = winBK1 || "Chờ Thắng BK1";
-  const lb_w2 = winBK2 || "Chờ Thắng BK2";
-  const lb_l1 = lostBK1 || "Chờ Thua BK1";
-  const lb_l2 = lostBK2 || "Chờ Thua BK2";
-
+  const lb_w1 = winBK1 || "Chờ Thắng BK1"; const lb_w2 = winBK2 || "Chờ Thắng BK2";
+  const lb_l1 = lostBK1 || "Chờ Thua BK1"; const lb_l2 = lostBK2 || "Chờ Thua BK2";
   ['l7_lost1','l9_lost1','l11_lost1'].forEach(id => document.getElementById(`lbl_${id}`).textContent = lb_l1);
   ['l7_lost2','l9_lost2','l11_lost2'].forEach(id => document.getElementById(`lbl_${id}`).textContent = lb_l2);
   ['l8_win1','l10_win1','l12_win1'].forEach(id => document.getElementById(`lbl_${id}`).textContent = lb_w1);
@@ -781,42 +859,31 @@ function calcAll() {
   if(lostBK1 && lostBK2) {
     let s7_1 = parseScore('s_l7_lost1'), s7_2 = parseScore('s_l7_lost2');
     let s9_1 = parseScore('s_l9_lost1'), s9_2 = parseScore('s_l9_lost2');
-    
     if(s7_1 !== null && s7_2 !== null) { if(s7_1 > s7_2) tb_1++; else if(s7_1 < s7_2) tb_2++; }
     if(s9_1 !== null && s9_2 !== null) { if(s9_1 > s9_2) tb_1++; else if(s9_1 < s9_2) tb_2++; }
-    
     let showTB_S3 = (tb_1 === 1 && tb_2 === 1);
     document.getElementById('row_l11').classList.toggle('show', showTB_S3);
-    
     if(showTB_S3) {
       let s11_1 = parseScore('s_l11_lost1'), s11_2 = parseScore('s_l11_lost2');
       if(s11_1 !== null && s11_2 !== null) { if(s11_1 > s11_2) tb_1++; else if(s11_1 < s11_2) tb_2++; }
     }
-  } else {
-    document.getElementById('row_l11').classList.remove('show');
-  }
+  } else { document.getElementById('row_l11').classList.remove('show'); }
 
   // TÍNH CHUNG KẾT
   let ck_1 = 0, ck_2 = 0;
   if(winBK1 && winBK2) {
     let s8_1 = parseScore('s_l8_win1'), s8_2 = parseScore('s_l8_win2');
     let s10_1 = parseScore('s_l10_win1'), s10_2 = parseScore('s_l10_win2');
-    
     if(s8_1 !== null && s8_2 !== null) { if(s8_1 > s8_2) ck_1++; else if(s8_1 < s8_2) ck_2++; }
     if(s10_1 !== null && s10_2 !== null) { if(s10_1 > s10_2) ck_1++; else if(s10_1 < s10_2) ck_2++; }
-
     let showCK_S3 = (ck_1 === 1 && ck_2 === 1);
     document.getElementById('row_l12').classList.toggle('show', showCK_S3);
-    
     if(showCK_S3) {
       let s12_1 = parseScore('s_l12_win1'), s12_2 = parseScore('s_l12_win2');
       if(s12_1 !== null && s12_2 !== null) { if(s12_1 > s12_2) ck_1++; else if(s12_1 < s12_2) ck_2++; }
     }
-  } else {
-    document.getElementById('row_l12').classList.remove('show');
-  }
+  } else { document.getElementById('row_l12').classList.remove('show'); }
 
-  // CẬP NHẬT ĐIỂM CHUNG CUỘC
   if(ck_1 >= 2) { document.getElementById('f_1st').textContent = lb_w1; document.getElementById('f_2nd').textContent = lb_w2; }
   else if(ck_2 >= 2) { document.getElementById('f_1st').textContent = lb_w2; document.getElementById('f_2nd').textContent = lb_w1; }
   else { document.getElementById('f_1st').textContent = "Chờ chung kết..."; document.getElementById('f_2nd').textContent = "—"; }
@@ -825,3 +892,37 @@ function calcAll() {
   else if(tb_2 >= 2) { document.getElementById('f_3rd').textContent = lb_l2; document.getElementById('f_4th').textContent = lb_l1; }
   else { document.getElementById('f_3rd').textContent = "Chờ tranh hạng ba..."; document.getElementById('f_4th').textContent = "—"; }
 }
+
+function loadSavedData() {
+  // Phục hồi log bốc thăm nếu có
+  const savedDraw = localStorage.getItem('cached_draw_history');
+  if (savedDraw) {
+    drawHistory = JSON.parse(savedDraw);
+    poolMembers = JSON.parse(localStorage.getItem('cached_pool_members')) || [];
+    poolTeams = JSON.parse(localStorage.getItem('cached_pool_teams')) || [];
+    Object.keys(drawHistory).forEach(k => {
+      let d = drawHistory[k];
+      document.getElementById(`btn_draw_${k}`).disabled = true;
+      document.getElementById(`draw_log_${k}`).innerHTML = `<span>${d.captain}:</span> <span style="font-weight:700; color:#16a34a"> Ghép với [${d.member}] ➔ Đội ${d.teamSlot}</span>`;
+    });
+  }
+
+  nameIds.forEach(id => { const val = localStorage.getItem(id); if (val !== null) document.getElementById(id).value = val; });
+  scoreIds.forEach(id => { const val = localStorage.getItem(id); if (val !== null) document.getElementById(id).value = val; });
+  updateNames();
+}
+
+function clearTournament() {
+  if (confirm("Xóa toàn bộ tiến trình bốc thăm, tên và điểm số để làm lại?")) {
+    localStorage.clear();
+    resetDrawOnly();
+    nameIds.forEach(id => document.getElementById(id).value = "");
+    scoreIds.forEach(id => document.getElementById(id).value = "");
+    updateNames();
+  }
+}
+
+loadSavedData();
+</script>
+</body>
+</html>

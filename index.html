@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quản Lý Nhiều Giải Cầu Lông Sân Vườn</title>
+<title>Hệ Thống Đa Giải Đấu Cầu Lông Sân Vườn</title>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -49,15 +49,20 @@ body {
 .header h1 { font-size: 1.4rem; font-weight: 800; color: var(--text); }
 .header-sub { font-size: 0.75rem; color: var(--text3); margin-top: 4px; line-height: 1.3; }
 
-/* ── KHU VỰC CHỌN GIẢI ĐẤU (MỚI) ── */
+/* ── KHU VỰC CHỌN VÀ TẠO GIẢI ĐẤU NÂNG CAO ── */
 .tournament-selector-box {
   background: #fff;
   border: 1px solid var(--border2);
   border-radius: 12px;
-  padding: 12px;
+  padding: 14px;
   max-width: 800px;
   margin: 0 auto 16px;
   box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.selector-row {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -66,9 +71,12 @@ body {
 }
 .selector-group { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 280px; }
 .selector-group select { flex: 1; padding: 8px; border-radius: 6px; border: 1.5px solid var(--border2); font-weight: 600; outline: none; }
-.create-group { display: flex; gap: 6px; }
-.create-group input { padding: 8px; border-radius: 6px; border: 1.5px solid var(--border2); outline: none; font-size: 0.85rem; }
+.search-input { padding: 8px 12px; border-radius: 6px; border: 1.5px solid var(--border2); outline: none; font-size: 0.85rem; width: 100%; max-width: 220px; background: #fafafa; }
+.search-input:focus { border-color: var(--accent); background: #fff; }
+.create-group { display: flex; gap: 6px; flex-wrap: wrap; }
+.create-group input { padding: 8px; border-radius: 6px; border: 1.5px solid var(--border2); outline: none; font-size: 0.85rem; min-width: 180px; }
 .btn-create { background: var(--accent); color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
+.btn-delete-tournament { background: var(--red); color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
 
 .section-title {
   font-size: 0.75rem;
@@ -114,6 +122,17 @@ body {
 .input-pair input { width: 100%; border: 1.5px solid var(--border2); border-radius: 6px; padding: 8px; font-size: 0.8rem; font-weight: 600; outline: none; }
 .input-pair input:focus { border-color: var(--accent); }
 
+#password-section {
+  max-width: 800px;
+  margin: 0 auto 16px;
+  background: #fff;
+  padding: 12px;
+  border: 2px solid #0ea5e9;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
 /* ── TABLE SCHEDULE ── */
 .schedule-box { background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px; max-width: 950px; margin: 0 auto 16px; box-shadow: var(--shadow); }
 .sched-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
@@ -156,6 +175,8 @@ body {
 
 @media (max-width: 768px) {
   .tournament-selector-box { flex-direction: column; align-items: stretch; }
+  .selector-row { flex-direction: column; align-items: stretch; }
+  .search-input { max-width: 100%; }
   .draw-grid { grid-template-columns: 1fr; }
   .draw-actions { grid-column: span 1; grid-template-columns: repeat(2, 1fr); }
   .draw-results-preview { grid-column: span 1; }
@@ -178,22 +199,27 @@ body {
 <body>
 
 <div class="header">
-  <div class="header-badge">🏸 Hệ Thống Đa Giải Đấu</div>
+  <div class="header-badge">🏸 Hệ Thống Đa Giải Đấu Pro</div>
   <h1>Hệ Thống Bốc Thăm & Nhập Điểm</h1>
-  <p class="header-sub">Chọn giải đấu hoặc tạo giải đấu mới để quản lý độc lập</p>
+  <p class="header-sub">Quản lý nâng cao: Tìm kiếm giải và Full quyền Admin tối cao</p>
 </div>
 
-<!-- 🌐 KHU VỰC CHỌN GIẢI ĐẤU (MỚI THÊM) -->
 <div class="tournament-selector-box">
-  <div class="selector-group">
-    <label for="tournament_select" style="font-weight: bold; font-size: 0.9rem;">🏆 Giải đang chọn:</label>
-    <select id="tournament_select" onchange="switchTournament(this.value)">
-      <!-- Sẽ được render tự động từ Firebase -->
-    </select>
+  <div class="selector-row">
+    <div class="selector-group">
+      <label for="tournament_select" style="font-weight: bold; font-size: 0.9rem; min-width: 110px;">🏆 Chọn giải đấu:</label>
+      <input type="text" id="tournament_search" class="search-input" placeholder="🔍 Tìm kiếm giải..." oninput="filterTournaments()">
+      <select id="tournament_select" onchange="switchTournament(this.value)">
+        </select>
+      <button class="btn-delete-tournament" onclick="deleteTournamentPermanently()">❌ Xóa giải</button>
+    </div>
   </div>
-  <div class="create-group">
-    <input type="text" id="new_tournament_name" placeholder="Tên giải đấu mới...">
-    <button class="btn-create" onclick="createNewTournament()">➕ Tạo Giải</button>
+  <div class="selector-row" style="border-top: 1px dashed var(--border); padding-top: 10px;">
+    <div class="create-group">
+      <label style="font-weight: bold; font-size: 0.85rem; display: flex; align-items: center;">➕ Tạo giải mới:</label>
+      <input type="text" id="new_tournament_name" placeholder="Tên giải đấu mới...">
+      <button class="btn-create" onclick="createNewTournament()">Tạo & Thiết Lập</button>
+    </div>
   </div>
 </div>
 
@@ -266,9 +292,9 @@ body {
   </div>
 </div>
 
-<div id="password-section" style="display: none; background: #fff; padding: 15px; border: 2px solid #0ea5e9; border-radius: 8px; text-align: center; margin-bottom: 20px;">
+<div id="password-section" style="display: none;">
     <label for="admin_pass" style="font-weight: bold; margin-right: 10px;">🔑 Mật khẩu trọng tài:</label>
-    <input type="password" id="admin_pass" placeholder="Nhập mật khẩu..." style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+    <input type="password" id="admin_pass" placeholder="Nhập mật khẩu giải..." style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-weight: bold;">
 </div>
 
 <div class="section-title">📅 Bước 2: Theo dõi lịch thi đấu & Nhập điểm nhanh</div>
@@ -285,7 +311,6 @@ body {
       </tr>
     </thead>
     <tbody id="schedule-body">
-      <!-- Toàn bộ 12 hàng TR giữ nguyên như code cũ của bạn -->
       <tr>
         <td>1</td><td><span class="match-label lbl-bk">Bán Kết 1</span></td><td>Set 1</td>
         <td class="cell-left"><span id="lbl_l1_t1" class="player-display"></span></td>
@@ -444,7 +469,7 @@ body {
 
 <div class="reset-container">
   <button id="btn-draw-reset" class="btn-secondary" onclick="resetDrawOnly()" style="display: none;">🎲 Reset lượt Bốc Thăm</button>
-  <button id="btn-tournament-clear" class="btn-reset" onclick="clearTournament()" style="display: none;">🔄 Xóa sạch làm lại từ đầu</button>
+  <button id="btn-tournament-clear" class="btn-reset" onclick="clearTournament()" style="display: none;">🔄 Xóa sạch giải đấu hiện tại</button>
 </div>
 
 <script>
@@ -462,9 +487,13 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// 🚀 BIẾN TOÀN CỤC QUẢN LÝ GIẢI ĐẤU HIỆN TẠI
+// 👑 CẤU HÌNH MẬT KHẨU ADMIN TỐI CAO (SUPER ADMIN)
+const SUPER_ADMIN_PASSWORD = "86688668"; 
+
 let currentTournamentId = "giai_mac_dinh"; 
 let dbRef = null; 
+let currentTournamentPassword = "170397"; 
+let globalTournamentsList = {}; // Lưu cache danh sách giải để phục vụ Search
 
 let totalClickCount = 0;
 document.addEventListener('click', function(e) {
@@ -492,37 +521,69 @@ const scoreIds = [
 ];
 const nameIds = ['t1_p1','t1_p2', 't2_p1','t2_p2', 't3_p1','t3_p2', 't4_p1','t4_p2'];
 
-// ── 🛠️ HÀM KHỞI TẠO VÀ QUẢN LÝ DANH SÁCH GIẢI ĐẤU (MỚI) ──
+// ── 🛠️ HÀM KHỞI TẠO VÀ ĐỒNG BỘ ĐA GIẢI ĐẤU ──
 function initTournamentSystem() {
-  // Lắng nghe danh sách giải đấu từ Firebase
   db.ref('tournaments_list').on('value', (snapshot) => {
-    const list = snapshot.val();
-    const selectEl = document.getElementById('tournament_select');
-    selectEl.innerHTML = "";
+    globalTournamentsList = snapshot.val() || {};
     
-    if (!list) {
-      // Nếu chưa có giải nào, tạo một giải mặc định ban đầu
+    if (!snapshot.exists()) {
       db.ref('tournaments_list/giai_mac_dinh').set("Giải Đấu Mặc Định");
+      db.ref('tournaments_data/giai_mac_dinh').set({ tournament_password: "170397" });
       return;
     }
 
-    Object.keys(list).forEach(id => {
-      let option = document.createElement('option');
-      option.value = id;
-      option.textContent = list[id];
-      selectEl.appendChild(option);
-    });
-
-    // Giữ nguyên giải đấu đang chọn nếu nó vẫn tồn tại
-    if (Object.keys(list).includes(currentTournamentId)) {
-      selectEl.value = currentTournamentId;
-    } else {
-      currentTournamentId = Object.keys(list)[0];
-      selectEl.value = currentTournamentId;
-    }
-    
-    bindTournamentRealtime();
+    renderTournamentSelect(globalTournamentsList);
   });
+}
+
+// Hàm render danh sách giải vào thẻ <select> dựa trên dữ liệu/kết quả tìm kiếm
+function renderTournamentSelect(list) {
+  const selectEl = document.getElementById('tournament_select');
+  selectEl.innerHTML = "";
+  
+  const keys = Object.keys(list);
+  if(keys.length === 0) {
+    let option = document.createElement('option');
+    option.textContent = "(Không tìm thấy giải)";
+    selectEl.appendChild(option);
+    return;
+  }
+
+  keys.forEach(id => {
+    let option = document.createElement('option');
+    option.value = id;
+    option.textContent = list[id];
+    selectEl.appendChild(option);
+  });
+
+  // Đồng bộ trạng thái chọn giải hiện tại nếu nó tồn tại trong danh sách đang hiển thị
+  if (keys.includes(currentTournamentId)) {
+    selectEl.value = currentTournamentId;
+  } else {
+    currentTournamentId = keys[0];
+    selectEl.value = currentTournamentId;
+  }
+  
+  bindTournamentRealtime();
+}
+
+// 🔍 CHỨC NĂNG TÌM KIẾM GIẢI ĐẤU (MỚI)
+function filterTournaments() {
+  const keyword = document.getElementById('tournament_search').value.trim().toLowerCase();
+  if (!keyword) {
+    renderTournamentSelect(globalTournamentsList);
+    return;
+  }
+
+  let filtered = {};
+  Object.keys(globalTournamentsList).forEach(id => {
+    const name = globalTournamentsList[id].toLowerCase();
+    if (name.includes(keyword) || id.toLowerCase().includes(keyword)) {
+      filtered[id] = globalTournamentsList[id];
+    }
+  });
+
+  renderTournamentSelect(filtered);
 }
 
 function createNewTournament() {
@@ -530,36 +591,80 @@ function createNewTournament() {
   const name = nameIn.value.trim();
   if(!name) { alert("Vui lòng nhập tên giải đấu!"); return; }
   
-  // Tạo slug ID từ tên giải đấu không dấu
+  const tournamentPassword = prompt(`Nhập mật khẩu trọng tài thiết lập riêng cho giải [${name}]:`);
+  if (tournamentPassword === null) return; 
+  if (tournamentPassword.trim() === "") { alert("Mật khẩu giải đấu không được để trống!"); return; }
+
   const id = "giai_" + name.toLowerCase().replace(/[^a-z0-9]/g, "_").replace(/_+/g, "_") + "_" + Math.floor(Math.random()*1000);
   
   db.ref('tournaments_list/' + id).set(name).then(() => {
-    nameIn.value = "";
-    switchTournament(id);
-    alert("Đã tạo và chuyển sang giải đấu mới thành công!");
+    db.ref('tournaments_data/' + id).set({
+      tournament_password: tournamentPassword.trim(),
+      scores: {},
+      team_names: {}
+    }).then(() => {
+      nameIn.value = "";
+      document.getElementById('tournament_search').value = ""; // Clear thanh tìm kiếm
+      switchTournament(id);
+      alert("Đã tạo giải đấu mới thành công!");
+    });
+  });
+}
+
+// ❌ CHỨC NĂNG XÓA GIẢI ĐẤU TOÀN DIỆN CỦA SUPER ADMIN (MỚI)
+function deleteTournamentPermanently() {
+  const selectEl = document.getElementById('tournament_select');
+  const idToDelete = selectEl.value;
+  if (!idToDelete || idToDelete === "giai_mac_dinh") {
+    alert("Không thể xóa giải đấu mặc định hệ thống hoặc giải trống!");
+    return;
+  }
+
+  const nameTournament = globalTournamentsList[idToDelete] || idToDelete;
+  
+  // Xác nhận hành động xóa
+  if (!confirm(`⚠️ CẢNH BÁO: Bạn có chắc chắn muốn XÓA HOÀN TOÀN giải đấu [${nameTournament}]? Mọi điểm số và dữ liệu bốc thăm sẽ mất vĩnh viễn.`)) {
+    return;
+  }
+
+  // Yêu cầu nhập mật khẩu quyền lực tối cao
+  const inputSuperPass = prompt("Xác thực tối cao: Nhập MẬT KHẨU ADMIN TỐI CAO để thực hiện thao tác xóa này:");
+  if (inputSuperPass === null) return;
+  if (inputSuperPass !== SUPER_ADMIN_PASSWORD) {
+    alert("❌ Sai mật khẩu Admin tối cao! Thao tác xóa bị từ chối.");
+    return;
+  }
+
+  // Thực hiện xóa đồng thời trên cả 2 node quản lý của Firebase
+  db.ref('tournaments_list/' + idToDelete).remove().then(() => {
+    db.ref('tournaments_data/' + idToDelete).remove().then(() => {
+      alert(`Đã xóa sạch dữ liệu giải đấu [${nameTournament}] thành công!`);
+      document.getElementById('tournament_search').value = ""; // Reset bộ lọc
+      currentTournamentId = "giai_mac_dinh"; // Đưa về giải mặc định
+    });
   });
 }
 
 function switchTournament(id) {
+  if(!id || id.startsWith("(")) return;
   currentTournamentId = id;
-  // Hủy lắng nghe cũ
   if(dbRef) dbRef.off();
   bindTournamentRealtime();
 }
 
 function bindTournamentRealtime() {
+  if(!currentTournamentId || currentTournamentId.startsWith("(")) return;
   dbRef = db.ref('tournaments_data/' + currentTournamentId);
   
-  // Lắng nghe Realtime cho giải đấu cụ thể
   dbRef.on('value', (snapshot) => {
     const data = snapshot.val() || {};
     
-    // 1. Đồng bộ kết quả bốc thăm
+    currentTournamentPassword = data.tournament_password || "170397";
+    
     drawHistory = data.draw_history || {};
     poolMembers = data.pool_members || [];
     poolTeams = data.pool_teams || [1, 2, 3, 4];
     
-    // Reset giao diện nút bấm bốc thăm về mặc định trước khi fill dữ liệu
     for(let i=1; i<=4; i++) {
       document.getElementById(`btn_draw_${i}`).disabled = false;
       document.getElementById(`draw_log_${i}`).innerHTML = `<span>Đội trưởng ${String.fromCharCode(64 + i)}:</span> <span style="font-weight:bold; color:var(--text3)">Chờ bấm...</span>`;
@@ -574,7 +679,6 @@ function bindTournamentRealtime() {
       }
     });
 
-    // 2. Đồng bộ Tên cặp đấu
     const names = data.team_names || {};
     nameIds.forEach(id => {
       const inputEl = document.getElementById(id);
@@ -583,7 +687,6 @@ function bindTournamentRealtime() {
       }
     });
 
-    // 3. Đồng bộ Điểm số
     const scores = data.scores || {};
     scoreIds.forEach(id => {
       const inputEl = document.getElementById(id);
@@ -596,7 +699,12 @@ function bindTournamentRealtime() {
   });
 }
 
-// ── 🎲 CƠ CHẾ BỐC THĂM ĐỒNG BỘ ──
+// Kiểm tra mật khẩu (Chấp nhận cả mật khẩu riêng của giải HOẶC mật khẩu tối cao)
+function checkPermission(inputPass) {
+  return (inputPass === currentTournamentPassword || inputPass === SUPER_ADMIN_PASSWORD);
+}
+
+// ── 🎲 CƠ CHẾ BỐC THĂM ĐỒNG BỘ TRÊN NODE GIẢI ĐẤU ──
 function executeDraw(captainIndex) {
   if (poolMembers.length === 0 && Object.keys(drawHistory).length === 0) {
     for(let i=1; i<=4; i++) {
@@ -614,7 +722,6 @@ function executeDraw(captainIndex) {
 
   drawHistory[captainIndex] = { captain: captainName, member: chosenMember, teamSlot: chosenTeamSlot };
 
-  // Đẩy trực tiếp lên Firebase giải đấu đang chọn
   dbRef.update({
     draw_history: drawHistory,
     pool_members: poolMembers,
@@ -640,14 +747,14 @@ function autoFillTournamentRows() {
 }
 
 function resetDrawOnly() {
-  if(confirm("Reset riêng lượt bốc thăm của giải này?")) {
+  if(confirm("Reset riêng tiến trình bốc thăm của giải này?")) {
     dbRef.child('draw_history').remove();
     dbRef.child('pool_members').remove();
     dbRef.child('pool_teams').remove();
   }
 }
 
-// ── 📈 BUSINESS RULES & STEPPER ĐỒNG BỘ ──
+// ── 📈 CƠ CHẾ ĐIỀU KHIỂN ĐIỂM SỐ & CHECK MẬT KHẨU LINH HOẠT ──
 function getRivalId(id) {
   const pairs = [
     ['s_l1_1','s_l1_2'], ['s_l2_3','s_l2_4'], ['s_l3_1','s_l3_2'], ['s_l4_3','s_l4_4'],
@@ -670,7 +777,8 @@ function getMatchRules(id) {
 
 function step(id, amount) {
   const pass = document.getElementById('admin_pass').value;
-  if (pass !== "170397") { alert("Sai mật khẩu trọng tài!"); return; }
+  // SỬ DỤNG HÀM CHECK PHÂN QUYỀN MỚI
+  if (!checkPermission(pass)) { alert("Sai mật khẩu trọng tài hoặc Admin tối cao!"); return; }
   
   const el = document.getElementById(id);
   let current = parseInt(el.value) || 0;
@@ -686,7 +794,7 @@ function step(id, amount) {
     let isSetFinished = false;
     if ((current >= rules.targetWin && current - rivalVal >= 2) || current === rules.maxCeiling) isSetFinished = true;
     if ((rivalVal >= rules.targetWin && rivalVal - current >= 2) || rivalVal === rules.maxCeiling) isSetFinished = true;
-    if (isSetFinished) { alert("Set đấu đã kết thúc hoàn thành trước đó!"); return; }
+    if (isSetFinished) { alert("Set đấu đã hoàn thành trước đó!"); return; }
   }
 
   el.value = newValue;
@@ -696,7 +804,8 @@ function step(id, amount) {
 
 function handleInputManual(id) {
   const pass = document.getElementById('admin_pass').value;
-  if (pass !== "170397") { alert("Bạn không có quyền sửa!"); bindTournamentRealtime(); return; }
+  // SỬ DỤNG HÀM CHECK PHÂN QUYỀN MỚI
+  if (!checkPermission(pass)) { alert("Bạn không có quyền chỉnh sửa!"); bindTournamentRealtime(); return; }
 
   const el = document.getElementById(id);
   let val = parseInt(el.value);
@@ -733,12 +842,14 @@ function saveAndResetNames() {
 function updateNames() {
   const n1 = getTeamName(1), n2 = getTeamName(2);
   const n3 = getTeamName(3), n4 = getTeamName(4);
-  document.getElementById('lbl_l1_t1').textContent = n1; document.getElementById('lbl_l1_t2').textContent = n2;
-  document.getElementById('lbl_l2_t3').textContent = n3; document.getElementById('lbl_l2_t4').textContent = n4;
-  document.getElementById('lbl_l3_t1').textContent = n1; document.getElementById('lbl_l3_t2').textContent = n2;
-  document.getElementById('lbl_l4_t3').textContent = n3; document.getElementById('lbl_l4_t4').textContent = n4;
-  document.getElementById('lbl_l5_t1').textContent = n1; document.getElementById('lbl_l5_t2').textContent = n2;
-  document.getElementById('lbl_l6_t3').textContent = n3; document.getElementById('lbl_l6_t4').textContent = n4;
+  if(document.getElementById('lbl_l1_t1')) {
+    document.getElementById('lbl_l1_t1').textContent = n1; document.getElementById('lbl_l1_t2').textContent = n2;
+    document.getElementById('lbl_l2_t3').textContent = n3; document.getElementById('lbl_l2_t4').textContent = n4;
+    document.getElementById('lbl_l3_t1').textContent = n1; document.getElementById('lbl_l3_t2').textContent = n2;
+    document.getElementById('lbl_l4_t3').textContent = n3; document.getElementById('lbl_l4_t4').textContent = n4;
+    document.getElementById('lbl_l5_t1').textContent = n1; document.getElementById('lbl_l5_t2').textContent = n2;
+    document.getElementById('lbl_l6_t3').textContent = n3; document.getElementById('lbl_l6_t4').textContent = n4;
+  }
   calcAll();
 }
 
@@ -751,6 +862,7 @@ function styleInputPair(id1, id2) {
   const v1 = parseScore(id1), v2 = parseScore(id2);
   const step1 = document.getElementById('step_' + id1);
   const step2 = document.getElementById('step_' + id2);
+  if(!step1 || !step2) return;
   if(v1 === null || v2 === null) { step1.className = 'score-stepper'; step2.className = 'score-stepper'; return; }
   if (v1 > v2) { step1.className = 'score-stepper win-style'; step2.className = 'score-stepper lose-style'; }
   else if (v2 > v1) { step1.className = 'score-stepper lose-style'; step2.className = 'score-stepper win-style'; }
@@ -767,6 +879,7 @@ function isSetWon(id1, id2) {
 }
 
 function calcAll() {
+  if(!document.getElementById('s_l1_1')) return;
   const pairs = [
     ['s_l1_1','s_l1_2'], ['s_l2_3','s_l2_4'], ['s_l3_1','s_l3_2'], ['s_l4_3','s_l4_4'],
     ['s_l5_1','s_l5_2'], ['s_l6_3','s_l6_4'], ['s_l7_lost1','s_l7_lost2'], ['s_l8_win1','s_l8_win2'],
@@ -849,12 +962,12 @@ function calcAll() {
 }
 
 function clearTournament() {
-  if (confirm("Xóa sạch toàn bộ dữ liệu (Bốc thăm, Đội, Điểm) của giải đấu này?")) {
+  if (confirm("Xóa sạch toàn bộ dữ liệu (Bốc thăm, Đội, Điểm) của riêng giải đấu này?")) {
     dbRef.remove();
   }
 }
 
-// 🛫 KHỞI CHẠY HỆ THỐNG KHI TẢI TRANG
+// 🛫 KHỞI ĐỘNG HỆ THỐNG
 initTournamentSystem();
 </script>
 </body>

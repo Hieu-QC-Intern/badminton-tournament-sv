@@ -722,7 +722,7 @@ function calculateBracketLogic(t, s) {
   else { document.getElementById('f_3rd').textContent = "—"; }
 }
 
-// ❌ CHỨC NĂNG XÓA GIẢI ĐẤU TOÀN DIỆN CỦA SUPER ADMIN (Đã sửa liên kết chọc thẳng Firebase Realtime)
+// ❌ CHỨC NĂNG XÓA GIẢI ĐẤU TOÀN DIỆN CỦA SUPER ADMIN (FIX LỖI UNDEFINED DB)
 function deleteTournamentPermanently() {
   const selectEl = document.getElementById('tournament_select');
   const idToDelete = selectEl.value;
@@ -738,8 +738,11 @@ function deleteTournamentPermanently() {
     return;
   }
 
-  // 1. Chọc trực tiếp vào Firebase lấy cấu hình mật khẩu super_admin_password theo đúng tên node của bạn
-  db.ref('admin_config/super_admin_password').once('value').then((snapshot) => {
+  // Khởi tạo trực tiếp instance từ firebase để tránh lỗi undefined biến db toàn cục
+  const firebaseDB = firebase.database();
+
+  // 1. Chọc trực tiếp vào Firebase lấy cấu hình mật khẩu super_admin_password
+  firebaseDB.ref('admin_config/super_admin_password').once('value').then((snapshot) => {
     
     const fbAdminPass = snapshot.exists() ? snapshot.val().toString().trim() : "";
 
@@ -764,8 +767,8 @@ function deleteTournamentPermanently() {
     }
 
     // 4. Đúng mật khẩu -> Tiến hành xóa sạch dữ liệu giải đấu đồng bộ cloud
-    db.ref('tournaments_list/' + idToDelete).remove().then(() => {
-      db.ref('tournaments_data/' + idToDelete).remove().then(() => {
+    firebaseDB.ref('tournaments_list/' + idToDelete).remove().then(() => {
+      firebaseDB.ref('tournaments_data/' + idToDelete).remove().then(() => {
         alert(`Đã xóa sạch dữ liệu giải đấu [${nameTournament}] thành công!`);
         document.getElementById('tournament_search').value = ""; // Reset bộ lọc
         currentTournamentId = "giai_mac_dinh"; // Đưa về giải mặc định

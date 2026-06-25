@@ -63,7 +63,7 @@
 </head>
 <body>
 <div class="container">
-  <h1>🏆 GIẢI CẦU LÔNG ĐỒNG ĐỘI</h1>
+  <h1 id="dd_title" onclick="ddSecretClick()" style="cursor:default;">🏆 GIẢI CẦU LÔNG ĐỒNG ĐỘI</h1>
   <p style="text-align:center;margin:0 0 16px;color:#64748b;font-size:14px;">Mỗi người đánh đúng 4 trận · Xen kẽ Đôi Nam / Nam Nữ</p>
 
   <!-- TOURNAMENT MANAGER -->
@@ -76,6 +76,7 @@
     <div class="tm-row">
       <span class="tm-label">➕ Tạo giải:</span>
       <input class="tm-input" id="dd_new_name" placeholder="Tên giải đấu mới...">
+      <input class="tm-input" id="dd_new_pass" placeholder="Mật khẩu trọng tài..." type="password" style="max-width:180px;">
       <button class="btn-create" onclick="ddCreateTournament()">Tạo & Thiết Lập</button>
     </div>
   </div>
@@ -136,11 +137,11 @@
 <script>
 // ── FIREBASE CONFIG ──
 const ddFirebaseConfig = {
-  apiKey: "AIzaSyBuJcSMGQmVRQg8RZHMT4bR_FHQJQ_E_sA",
+  apiKey: "AIzaSyDVF-OImZ9yy9c_4clm1Idp3QAsCP56qcI",
   authDomain: "giai-cau-long-san-vuon.firebaseapp.com",
   databaseURL: "https://giai-cau-long-san-vuon-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "giai-cau-long-san-vuon",
-  storageBucket: "giai-cau-long-san-vuon.appspot.com",
+  storageBucket: "giai-cau-long-san-vuon.firebasestorage.app",
   messagingSenderId: "490739341912",
   appId: "1:490739341912:web:97c558dc2fa9ebb0bd882d"
 };
@@ -243,30 +244,34 @@ function ddSwitchTournament(id) {
 
 function ddCreateTournament() {
   const name = document.getElementById('dd_new_name').value.trim();
+  const pass = document.getElementById('dd_new_pass').value.trim();
   if (!name) { alert('Vui lòng nhập tên giải!'); return; }
   const id = 'dd_' + Date.now();
-  ddDb.ref('dongdoi_list/' + id).set({ name, createdAt: Date.now() });
+  ddDb.ref('dongdoi_list/' + id).set({ name, refereePass: pass || '', createdAt: Date.now() });
   ddDb.ref('dongdoi_data/' + id).set({ currentMatch: 1, isMatchLocked: false, names: {}, scores: {} });
   document.getElementById('dd_new_name').value = '';
+  document.getElementById('dd_new_pass').value = '';
   setTimeout(() => {
     document.getElementById('dd_select').value = id;
     ddSwitchTournament(id);
   }, 600);
 }
 
-function ddDeleteTournament() {
+async function ddDeleteTournament() {
   if (!ddCurrentId) return;
   const input = prompt('Nhập mật khẩu Admin để xóa giải này:');
   if (!input) return;
-  const hash = Array.from(new Uint8Array(
-    crypto.subtle ? null : []
-  ));
-  // So sánh thẳng với Firebase pass
-  if (input.trim() !== ddAdminPass) {
+  const cleanInput = input.trim();
+  // Hash the input for comparison
+  const encoder = new TextEncoder();
+  const data = encoder.encode(cleanInput);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const inputHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2,'0')).join('');
+  if (cleanInput !== ddAdminPass && inputHash !== ddAdminPass) {
     alert('❌ Mật khẩu không đúng!');
     return;
   }
-  if (!confirm(`Xóa giải "${ddTournamentsList[ddCurrentId]?.name}"? Không thể hoàn tác!`)) return;
+  if (!confirm('Xóa giải "' + (ddTournamentsList[ddCurrentId]?.name || ddCurrentId) + '"? Không thể hoàn tác!')) return;
   ddDb.ref('dongdoi_list/' + ddCurrentId).remove();
   ddDb.ref('dongdoi_data/' + ddCurrentId).remove();
   ddCurrentId = null;
@@ -378,6 +383,26 @@ function ddResetScores() {
 }
 
 updateNames();
+
+// ── SECRET TRIGGER (triple-click title) ──
+var _ddSecretCount = 0;
+var _ddSecretTimer = null;
+function ddSecretClick() {
+  _ddSecretCount++;
+  clearTimeout(_ddSecretTimer);
+  _ddSecretTimer = setTimeout(() => { _ddSecretCount = 0; }, 2000);
+  if (_ddSecretCount >= 3) {
+    _ddSecretCount = 0;
+    if (ddCurrentId && ddTournamentsList[ddCurrentId]) {
+      const p = ddTournamentsList[ddCurrentId].refereePass;
+      if (p) {
+        alert('🔐 Mật khẩu trọng tài: ' + p);
+      } else {
+        alert('ℹ️ Giải này không có mật khẩu trọng tài.');
+      }
+    }
+  }
+}
 </script>
 </body>
 </html>

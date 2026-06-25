@@ -401,7 +401,10 @@ function ddSelectMatch(val) {
   ddSave();
 }
 
+var _ddScoreLocked = false;
+
 function pressScore(team, delta) {
+  if (_ddScoreLocked || ddCurrentMatch > 10 || ddIsMatchLocked) return;
   const pass = document.getElementById('dd_ref_pass')?.value || '';
   if (!ddCheckPermission(pass)) { alert('🔒 Sai mật khẩu trọng tài!'); return; }
   const el = document.getElementById(`s${ddCurrentMatch}_${team}`);
@@ -426,6 +429,7 @@ function calculateTotal() {
     const target = ddCurrentMatch * 21;
     if (t1 >= target || t2 >= target) {
       ddIsMatchLocked = true;
+      _ddScoreLocked = true;
       setTimeout(() => {
         if (ddCurrentMatch === 10) {
           const winner = t1 >= 210 ? 'ĐỘI 1' : 'ĐỘI 2';
@@ -437,6 +441,7 @@ function calculateTotal() {
           ddIsMatchLocked = false;
           updateNames();
         }
+        _ddScoreLocked = false;
         ddSave();
       }, 50);
     }

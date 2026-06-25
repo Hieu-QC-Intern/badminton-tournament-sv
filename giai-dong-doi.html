@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Giải Cầu Lông Đồng Đội</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <style>
@@ -103,6 +104,11 @@
   </div>
   <button class="btn-apply" onclick="updateNames(); ddSave();">Cập Nhật Tên Vào Lịch Đấu</button>
 
+  <div id="dd_pass_section" style="display:none; background:#fff3cd; border:1px solid #ffc107; border-radius:8px; padding:10px 14px; margin-bottom:12px; display:none;">
+    <label style="font-weight:700; margin-right:8px;">🔑 Mật khẩu trọng tài:</label>
+    <input type="password" id="dd_ref_pass" placeholder="Nhập mật khẩu giải..." style="padding:6px 10px; border:1px solid #ccc; border-radius:4px; font-size:0.9rem;">
+  </div>
+
   <h2>2. BẢNG BẤM ĐIỂM TRÊN SÂN</h2>
   <div class="scoreboard-panel">
     <div class="current-match-info" id="live_match_status">Đang tải trận đấu...</div>
@@ -155,6 +161,14 @@ var ddCurrentMatch = 1;
 var ddIsMatchLocked = false;
 var ddTournamentsList = {};
 var ddListener = null;
+var ddCurrentPass = ""; // pass trọng tài giải hiện tại
+const DD_SUPER_ADMIN_HASH = "6e42b9347a505b2a0ffeb054f0fa3c4415840d04db96c81bf373fc345df990b7";
+
+function ddCheckPermission(inputPass) {
+  if (!inputPass) return false;
+  const inputHash = CryptoJS.SHA256(inputPass.trim()).toString(CryptoJS.enc.Hex).toLowerCase();
+  return (inputPass.trim() === ddCurrentPass || inputHash === DD_SUPER_ADMIN_HASH);
+}
 
 // Fetch admin password
 ddDb.ref('admin_config/super_admin_password').on('value', snap => {
@@ -178,8 +192,8 @@ ddDb.ref('admin_config/super_admin_password').on('value', snap => {
       <td><span class="badge ${badges[i-1]}</span></td>
       <td id="t${i}_d1"></td><td id="t${i}_d2"></td>
       <td><span class="target-score">${i*21}</span></td>
-      <td><input type="number" class="score-input" id="s${i}_1" value="0" oninput="calculateTotal();ddSave();"></td>
-      <td><input type="number" class="score-input" id="s${i}_2" value="0" oninput="calculateTotal();ddSave();"></td>
+      <td><input type="number" class="score-input" id="s${i}_1" value="0" oninput="ddCheckScoreInput(this);" readonly></td>
+      <td><input type="number" class="score-input" id="s${i}_2" value="0" oninput="ddCheckScoreInput(this);" readonly></td>
     </tr>`;
   }
   html += `<tr class="total-row">
@@ -218,12 +232,17 @@ ddDb.ref('dongdoi_list').on('value', snap => {
 function ddSwitchTournament(id) {
   if (!id) return;
   ddCurrentId = id;
+  ddCurrentPass = (ddTournamentsList[id] && ddTournamentsList[id].refereePass) ? ddTournamentsList[id].refereePass : "";
   if (ddListener) ddRef && ddRef.off('value', ddListener);
   ddRef = ddDb.ref('dongdoi_data/' + id);
   ddListener = ddRef.on('value', snap => {
     const data = snap.val() || {};
     ddCurrentMatch = data.currentMatch || 1;
     ddIsMatchLocked = data.isMatchLocked || false;
+    // Load referee pass from tournament list
+    if (ddTournamentsList[id]) {
+      ddCurrentPass = ddTournamentsList[id].refereePass || "";
+    }
     if (data.names) {
       Object.keys(data.names).forEach(k => {
         const el = document.getElementById(k);
@@ -293,6 +312,18 @@ function ddSave() {
   ddRef.update({ currentMatch: ddCurrentMatch, isMatchLocked: ddIsMatchLocked, names, scores });
 }
 
+function ddCheckScoreInput(el) {
+  const pass = document.getElementById('dd_ref_pass')?.value || '';
+  if (!ddCheckPermission(pass)) {
+    alert('🔒 Sai mật khẩu trọng tài!');
+    // revert via Firebase sync
+    return;
+  }
+  el.removeAttribute('readonly');
+  calculateTotal();
+  ddSave();
+}
+
 function updateNames() {
   const g = id => document.getElementById(id)?.value || id;
   const d1 = { n1: g('d1_n1'), m1: g('d1_m1'), m2: g('d1_m2'), m3: g('d1_m3'), m4: g('d1_m4') };
@@ -332,6 +363,8 @@ function updateRowHighlight() {
 
 function pressScore(team) {
   if (ddCurrentMatch > 10 || ddIsMatchLocked) return;
+  const pass = document.getElementById('dd_ref_pass')?.value || '';
+  if (!ddCheckPermission(pass)) { alert('🔒 Sai mật khẩu trọng tài!'); return; }
   const el = document.getElementById(`s${ddCurrentMatch}_${team}`);
   if (el) { el.value = (parseInt(el.value) || 0) + 1; calculateTotal(); ddSave(); }
 }
@@ -368,6 +401,8 @@ function calculateTotal() {
 }
 
 function ddResetScores() {
+  const pass = document.getElementById('dd_ref_pass')?.value || '';
+  if (!ddCheckPermission(pass)) { alert('🔒 Cần mật khẩu trọng tài để reset!'); return; }
   if (!confirm('Reset toàn bộ điểm về 0? (Giữ nguyên tên thành viên)')) return;
   ddCurrentMatch = 1;
   ddIsMatchLocked = false;
@@ -393,13 +428,10 @@ function ddSecretClick() {
   _ddSecretTimer = setTimeout(() => { _ddSecretCount = 0; }, 2000);
   if (_ddSecretCount >= 3) {
     _ddSecretCount = 0;
-    if (ddCurrentId && ddTournamentsList[ddCurrentId]) {
-      const p = ddTournamentsList[ddCurrentId].refereePass;
-      if (p) {
-        alert('🔐 Mật khẩu trọng tài: ' + p);
-      } else {
-        alert('ℹ️ Giải này không có mật khẩu trọng tài.');
-      }
+    const sec = document.getElementById('dd_pass_section');
+    if (sec) {
+      const isVisible = sec.style.display !== 'none';
+      sec.style.display = isVisible ? 'none' : 'block';
     }
   }
 }

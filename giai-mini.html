@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -390,6 +391,11 @@ body {
   </div>
 </div>
 <div class="mini-sync-status" id="mini_sync_status">⏳ Đang kết nối Firebase...</div>
+
+<div id="mini_pass_section" style="max-width:780px;margin:0 auto 12px;background:#1e293b;border:1px solid #fbbf24;border-radius:8px;padding:10px 14px;display:none;">
+  <label style="font-weight:700;margin-right:8px;color:#fbbf24;">🔑 Mật khẩu trọng tài:</label>
+  <input type="password" id="mini_ref_pass" placeholder="Nhập mật khẩu giải..." style="padding:6px 10px;border:1px solid #334155;background:#0f172a;color:#e0e6f0;border-radius:4px;font-size:0.9rem;">
+</div>
 
 <div class="header">
   <h1 id="mini_title" onclick="miniSecretClick()" style="cursor:default;">🏸 Giải Cầu Lông Mini</h1>
@@ -822,6 +828,14 @@ var miniRef = null;
 var miniAdminPass = "";
 var miniTournamentsList = {};
 var miniListener = null;
+var miniCurrentPass = "";
+const MINI_SUPER_ADMIN_HASH = "6e42b9347a505b2a0ffeb054f0fa3c4415840d04db96c81bf373fc345df990b7";
+
+function miniCheckPermission(inputPass) {
+  if (!inputPass) return false;
+  const inputHash = CryptoJS.SHA256(inputPass.trim()).toString(CryptoJS.enc.Hex).toLowerCase();
+  return (inputPass.trim() === miniCurrentPass || inputHash === MINI_SUPER_ADMIN_HASH);
+}
 
 miniDb.ref('admin_config/super_admin_password').on('value', snap => {
   miniAdminPass = snap.val() ? snap.val().toString().trim() : "";
@@ -856,6 +870,7 @@ miniDb.ref('mini_list').on('value', snap => {
 function miniSwitchTournament(id) {
   if (!id) return;
   miniCurrentId = id;
+  miniCurrentPass = (miniTournamentsList[id] && miniTournamentsList[id].refereePass) ? miniTournamentsList[id].refereePass : "";
   if (miniListener) miniRef && miniRef.off('value', miniListener);
   miniRef = miniDb.ref('mini_data/' + id);
   miniListener = miniRef.on('value', snap => {
@@ -970,6 +985,19 @@ function updateNames() {
 }
 
 function calcMatch(n) {
+  const pass = document.getElementById('mini_ref_pass')?.value || '';
+  if (!miniCheckPermission(pass)) {
+    alert('🔒 Sai mật khẩu trọng tài!');
+    // Revert via Firebase sync
+    if (miniRef) miniRef.once('value', snap => {
+      const data = snap.val() || {};
+      const ea = document.getElementById('s'+n+'a');
+      const eb = document.getElementById('s'+n+'b');
+      if (ea) ea.value = (data.scores && data.scores['s'+n+'a'] !== undefined) ? data.scores['s'+n+'a'] : '';
+      if (eb) eb.value = (data.scores && data.scores['s'+n+'b'] !== undefined) ? data.scores['s'+n+'b'] : '';
+    });
+    return;
+  }
   const a = parseInt(document.getElementById('s'+n+'a').value);
   const b = parseInt(document.getElementById('s'+n+'b').value);
   const res = document.getElementById('res'+n);
@@ -1014,13 +1042,10 @@ function miniSecretClick() {
   _miniSecretTimer = setTimeout(() => { _miniSecretCount = 0; }, 2000);
   if (_miniSecretCount >= 3) {
     _miniSecretCount = 0;
-    if (miniCurrentId && miniTournamentsList[miniCurrentId]) {
-      const p = miniTournamentsList[miniCurrentId].refereePass;
-      if (p) {
-        alert('🔐 Mật khẩu trọng tài: ' + p);
-      } else {
-        alert('ℹ️ Giải này không có mật khẩu trọng tài.');
-      }
+    const sec = document.getElementById('mini_pass_section');
+    if (sec) {
+      const isVisible = sec.style.display !== 'none';
+      sec.style.display = isVisible ? 'none' : 'block';
     }
   }
 }

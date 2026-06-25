@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Giải Cầu Lông Mini</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #0d1117;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  color: #e0e6f0;
+  min-height: 100vh;
+  padding: 28px 12px 60px;
+}
+
+/* ── HEADER ── */
+.header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+.header h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+}
+.header p {
+  font-size: 0.75rem;
+  color: #4fc3f7;
+  letter-spacing: 0.08em;
+  margin-top: 4px;
+}
+
+/* ── TEAM SETUP ── */
+.setup-section {
+  max-width: 780px;
+  margin: 0 auto 32px;
+}
+.setup-title {
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #546e7a;
+  text-align: center;
+  margin-bottom: 12px;
+}
+.setup-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.team-setup-card {
+  border-radius: 10px;
+  padding: 12px;
+  border: 1.5px solid;
+}
+.t1-card { background: #0d1b3e; border-color: #1e3a8a55; }
+.t2-card { background: #1a0a00; border-color: #92400e55; }
+.t3-card { background: #052e16; border-color: #14532d55; }
+
+.team-setup-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.t1-card .team-setup-label { color: #93c5fd; }
+.t2-card .team-setup-label { color: #fcd34d; }
+.t3-card .team-setup-label { color: #6ee7b7; }
+
+.member-input-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.member-role {
+  font-size: 0.62rem;
+  color: #64748b;
+  width: 30px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+.member-input {
+  flex: 1;
+  background: #ffffff0d;
+  border: 1px solid #ffffff18;
+  border-radius: 6px;
+  color: #e0e6f0;
+  font-size: 0.75rem;
+  padding: 5px 8px;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+.member-input:focus { border-color: #4fc3f755; }
+.member-input::placeholder { color: #334155; }
+
+/* ── MAIN LAYOUT ── */
+.main {
+  max-width: 780px;
+  margin: 0 auto;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.flow-col { flex: 1; min-width: 0; }
+.ranking-col { width: 220px; flex-shrink: 0; position: sticky; top: 20px; }
+
+/* ── LƯỢT HEADER ── */
+.luot-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  margin-top: 6px;
+}
+.luot-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.luot-line { flex: 1; height: 1px; opacity: 0.2; }
+.luot-type { font-size: 0.65rem; color: #64748b; white-space: nowrap; font-style: italic; }
+
+.l1-badge { background: #1e3a8a; color: #93c5fd; }
+.l1-line  { background: #3b82f6; }
+.l2-badge { background: #78350f; color: #fcd34d; }
+.l2-line  { background: #f59e0b; }
+.l3-badge { background: #14532d; color: #6ee7b7; }
+.l3-line  { background: #10b981; }
+
+/* ── MATCH CARD ── */
+.match-card {
+  border-radius: 10px;
+  border: 1.5px solid;
+  padding: 10px 12px;
+  position: relative;
+  margin-bottom: 0;
+}
+.l1-match { background: #0d1b3e; border-color: #1e3a8a55; }
+.l2-match { background: #1a0a00; border-color: #92400e55; }
+.l3-match { background: #052e16; border-color: #14532d55; }
+
+.match-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.match-num-tag {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+.l1-match .match-num-tag { background: #1e40af; color: #bfdbfe; }
+.l2-match .match-num-tag { background: #92400e; color: #fde68a; }
+.l3-match .match-num-tag { background: #065f46; color: #a7f3d0; }
+
+.match-rest {
+  font-size: 0.6rem;
+  color: #475569;
+}
+.match-rest span {
+  font-weight: 700;
+  color: #64748b;
+}
+
+.match-body {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 6px;
+}
+
+.team-block { display: flex; flex-direction: column; gap: 2px; }
+.team-block.right { align-items: flex-end; text-align: right; }
+
+.team-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.t1-label { color: #60a5fa; }
+.t2-label { color: #fbbf24; }
+.t3-label { color: #34d399; }
+
+.team-members-display {
+  font-size: 0.6rem;
+  color: #475569;
+  line-height: 1.4;
+}
+
+/* SCORE CENTER */
+.score-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.vs-label {
+  font-size: 0.6rem;
+  color: #374151;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.score-inputs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.score-input {
+  width: 36px;
+  height: 32px;
+  background: #ffffff0d;
+  border: 1.5px solid #ffffff15;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+.score-input:focus { border-color: #4fc3f7; background: #ffffff14; }
+.score-sep { font-size: 0.75rem; color: #374151; font-weight: 700; }
+
+.score-result {
+  font-size: 0.6rem;
+  color: #6b7280;
+  height: 14px;
+  text-align: center;
+}
+.win-tag { color: #4ade80; font-weight: 700; }
+.lose-tag { color: #f87171; font-weight: 700; }
+
+/* ARROW */
+.arrow-sm {
+  display: flex; justify-content: center; align-items: center;
+  height: 20px; margin: 2px 0;
+}
+.luot-arrow {
+  display: flex; justify-content: center; align-items: center;
+  height: 32px; gap: 6px; margin: 4px 0;
+}
+.luot-arrow-lbl {
+  font-size: 0.6rem; color: #4fc3f7; letter-spacing: 0.06em;
+  text-transform: uppercase; opacity: 0.6;
+}
+
+/* ── RANKING ── */
+.ranking-box {
+  background: #111827;
+  border: 1.5px solid #1e293b;
+  border-radius: 12px;
+  padding: 14px;
+}
+.ranking-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  text-align: center;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #1e293b;
+}
+.ranking-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 6px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  transition: border-color 0.3s;
+}
+.rank-pos {
+  font-size: 1rem;
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.rank-info { flex: 1; min-width: 0; }
+.rank-name {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rank-stats {
+  font-size: 0.6rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+.rank-pts {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #fbbf24;
+  flex-shrink: 0;
+}
+
+.criteria-box {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #1e293b;
+}
+.criteria-title {
+  font-size: 0.6rem;
+  color: #475569;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.criteria-item {
+  font-size: 0.6rem;
+  color: #374151;
+  padding: 2px 0;
+  display: flex;
+  gap: 5px;
+}
+.criteria-item span:first-child { color: #4fc3f7; font-weight: 700; }
+
+.rule-box {
+  margin-top: 10px;
+  background: #0a1628;
+  border: 1px solid #1e3a5f44;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.6rem;
+  color: #475569;
+  line-height: 1.6;
+}
+.rule-box strong { color: #60a5fa; }
+
+/* ── MOBILE ── */
+@media (max-width: 600px) {
+  .main { flex-direction: column; }
+  .ranking-col { width: 100%; position: static; }
+  .setup-grid { grid-template-columns: 1fr; }
+  .score-input { width: 32px; height: 28px; font-size: 0.8rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🏸 Giải Cầu Lông Mini</h1>
+  <p>3 Đội · 3 Lượt · 9 Trận · Set 21 điểm · Mỗi thành viên đấu đúng 2 trận</p>
+</div>
+
+<!-- TEAM SETUP -->
+<div class="setup-section">
+  <div class="setup-title">⬇ Nhập tên thành viên từng đội</div>
+  <div class="setup-grid">
+    <div class="team-setup-card t1-card">
+      <div class="team-setup-label">🔵 Đội 1</div>
+      <div class="member-input-row">
+        <span class="member-role">Nữ</span>
+        <input class="member-input" id="t1n" placeholder="Tên nữ..." oninput="updateNames()">
+      </div>
+      <div class="member-input-row">
+        <span class="member-role">M1</span>
+        <input class="member-input" id="t1m1" placeholder="Nam 1..." oninput="updateNames()">
+      </div>
+      <div class="member-input-row">
+        <span class="member-role">M2</span>
+        <input class="member-input" id="t1m2" placeholder="Nam 2..." oninput="updateNames()">
+      </div>
+    </div>
+    <div class="team-setup-card t2-card">
+      <div class="team-setup-label">🟡 Đội 2</div>
+      <div class="member-input-row">
+        <span class="member-role">Nữ</span>
+        <input class="member-input" id="t2n" placeholder="Tên nữ..." oninput="updateNames()">
+      </div>
+      <div class="member-input-row">
+        <span class="member-role">M1</span>
+        <input class="member-input" id="t2m1" placeholder="Nam 1..." oninput="updateNames()">
+      </div>
+      <div class="member-input-row">
+        <span class="member-role">M2</span>
+        <input class="member-input" id="t2m2" placeholder="Nam 2..." oninput="updateNames()">
+      </div>
+    </div>
+    <div class="team-setup-card t3-card">
+      <div class="team-setup-label">🟢 Đội 3</div>
+      <div class="member-input-row">
+        <span class="member-role">Nữ</span>
+        <input class="member-input" id="t3n" placeholder="Tên nữ..." oninput="updateNames()">
+      </div>
+      <div class="member-input-row">
+        <span class="member-role">M1</span>
+        <input class="member-input" id="t3m1" placeholder="Nam 1..." oninput="updateNames()">
+      </div>
+      <div class="member-input-row">
+        <span class="member-role">M2</span>
+        <input class="member-input" id="t3m2" placeholder="Nam 2..." oninput="updateNames()">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- FLOW -->
+  <div class="flow-col">
+
+    <!-- LƯỢT 1 -->
+    <div class="luot-header">
+      <span class="luot-badge l1-badge">Lượt 1</span>
+      <div class="luot-line l1-line"></div>
+      <span class="luot-type">Đôi Nam Nữ · M1 + N</span>
+    </div>
+
+    <!-- T1 -->
+    <div class="match-card l1-match">
+      <div class="match-top">
+        <span class="match-num-tag">#1</span>
+        <span class="match-rest">Nghỉ: <span id="rest-t1">Đội 3</span></span>
+      </div>
+      <div class="match-body">
+        <div class="team-block">
+          <span class="team-label t1-label">Đội 1</span>
+          <span class="team-members-display" id="m-t1-l1">M1 · N</span>
+        </div>
+        <div class="score-center">
+          <span class="vs-label">VS</span>
+          <div class="score-inputs">
+            <input class="score-input" id="s1a" type="number" min="0" max="21" placeholder="–" oninput="calcMatch(1)">
+            <span class="score-sep">:</span>
+            <input class="score-input" id="s1b" type="number" min="0" max="21" placeholder="–" oninput="calcMatch(1)">
+          </div>
+          <div class="score-result" id="res1"></div>
+        </div>
+        <div class="team-block right">
+          <span class="team-label t2-label">Đội 2</span>
+          <span class="team-members-display" id="m-t2-l1">M1 · N</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow-sm">
+      <svg width="12" height="18" viewBox="0 0 12 18"><line x1="6" y1="0" x2="6" y2="12" stroke="#374151" stroke-width="1.5"/><polygon points="2,10 6,17 10,10" fill="#374151"/></svg>
+    </div>
+
+    <!-- T2 -->
+    <div class="match-card l1-match">
+      <div class="match-top">
+        <span class="match-num-tag">#2</span>
+        <span class="match-rest">Nghỉ: <span id="rest-t2">Đội 1</span></span>
+      </div>
+      <div class="match-body">
+        <div class="team-block">
+          <span class="team-label t2-label">Đội 2</span>
+          <span class="team-members-display" id="m-t2-l1b">M1 · N</span>
+        </div>
+        <div class="score-center">
+          <span class="vs-label">VS</span>
+          <div class="score-inputs">
+            <input class="score-input" id="s2a" type="number" min="0" max="21" placeholder="–" oninput="calcMatch(2)">
+            <span class="score-sep">:</span>
+            <input class="score-input" id="s2b" type="number" min="0" max="21" placeholder="–" oninput="calcMatch(2)">
+          </div>
+          <div class="score-result" id="res2"></div>
+        </div>
+        <div class="team-block right">
+          <span class="team-label t3-label">Đội 3</span>
+          <span class="team-members-display" id="m-t3-l1">M1 · N</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow-sm">
+      <svg width="12" height="18" viewBox="0 0 12 18"><line x1="6" y1="0" x2="6" y2="12" stroke="#374151" stroke-width="1.5"/><polygon points="2,10 6,17 10,10" fill="#374151"/></svg>
+    </div>
+
+    <!-- T3 -->
+    <div class="match-card l1-match">
+      <div class="match-top">
+        <span class="match-num-tag">#3</span>
+        <span class="match-rest">Nghỉ: <span id="rest-t3">Đội 2</span></span>
+      </div>
+      <div class="match-body">
+        <div class="team-block">
+          <span class="team-label t3-label">Đội 3</span>
+          <span class="team-members-display" id="m-t3-l1b">M1 · N</span>
+        </div>
+        <div class="score-center">
+          <span class="vs-label">VS</span>
+          <div class="score-inputs">
+            <input class="score-input" id="s3a" type="number" min="0" max="21" placeholder="–" oninput="calcMatch(3)">
+            <span class="score-sep">:</span>
+            <input class="score-input" id="s3b" type="number" min="0" max="21" placeholder="–" oninput="calcMatch(3)">
+          </div>
+          <div class="score-result" id="res3"></div>
+        </div>
+        <div class="team-block right">
+          <span class="team-label t1-label">Đội 1</span>
+          <span class="team-members-display" id="m-t1-l1b">M1 · N</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- LƯỢT ARROW -->
+    <div class="luot-arrow">
+      <svg width="18" height="28" viewBox="0 0 18 28"><line x1="9" y1="0" x2="9" y2="20" stroke="#4fc3f7" stroke-width="1.5" stroke-dasharray="4,3"/><polygon points="4,17 9,26 14,17" fill="#4fc3f7"/></svg>
+      <span class="luot-arrow-lbl">chuyển lượt</span>
+    </div>
+
+    <!-- LƯỢT 2 -->
+    <div class="luot-header">
+      <span class="luot-badge l2-badge">Lượt 2</span>
+      <div class="luot-line l2-line"></div>
+      <span class="luot-type">Đôi Nam Nam · M1 + M2</span>
+    </div>
+
+    <!-- T4 -->
+    <div class="match-card l2-match">
+      <div class="match-top">
+        <span class="match-num-tag">#4</span>
+        <span class="match-rest">Nghỉ: <span>Đội 3</span></span>
+      </div>
+      <div class="match-body">
+        <div class="team-block">
+          <span class="team-label t1-label">Đội 1</span>
+          <span class="team-members-display" id="m-t1-l2">M1 · M2</span>
+        </div>
+        <div class="score-center">
+          <span class="vs-label">VS</span>
+          <div class="score-inputs">
+            <input class="score-input" id="s4a" type="number" min="0" max="21" placeholder="–" oninput="calcMatch(4)">
+            <span class="score-sep">:</span>
+            <input class="score-input" id="s4b" type="number" min="0" max="21" placeholder="–" oninput="calcMatch(4)">
+          </div>
+          <div class="score-result" id="res4"></div>
+        </div>
+        <div class="team-block right">
+          <span class="team-label t2-label">Đội 2</span>
+          <span class="team-members-display" id="m-t2-l2">M1 · M2</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow-sm">
+      <svg width="12" height="18" viewBox="0 0 12 18"><line x1="6" y1="0" x2="6" y2="12" stroke="#374151" stroke-width="1.5"/><polygon points="2,10 6,17 10,10" fill="#374151"/></svg>
+    </div>
+
+    <!-- T5 -->
+    <div class="match-card l2-match">
+      <div class="match-top">
+        <span class="match-num-tag">#5</span>
+        <span class="match-rest">Nghỉ: <span>Đội 1</span></span>
+      </div>
+      <div class="match-body">
+        <div class="team-block">
+          <span class="team-label t2-label">Đội 2</span>
+          <span class="team-members-display" id="m-t2-l2b">M1 · M2</span>
+        </div>
+        <div class="score-center">
+          <span class="vs-label">VS</span>
+          <div class="score-inputs">
+            <input class="score-input" id="s5a" type="number" min="0" max="21" placeholder="–" oninput="calcMatch(5)">
+            <span class="score-sep">:</span>
+            <input class="score-input" id="s5b" type="number" min="0" max="21" placeholder="–" oninput="calcMatch(5)">
+          </div>
+          <div class="score-result" id="res5"></div>
+        </div>
+        <div class="team-block right">
+          <span class="team-label t3-label">Đội 3</span>
+          <span class="team-members-display" id="m-t3-l2">M1 · M2</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow-sm">
+      <svg width="12" height="18" viewBox="0 0 12 18"><line x1="6" y1="0" x2="6" y2="12" stroke="#374151" stroke-width="1.5"/><polygon points="2,10 6,17 10,10" fill="#374151"/></svg>
+    </div>
+
+    <!-- T6 -->
+    <div class="match-card l2-match">
+      <div class="match-top">
+        <span class="match-num-tag">#6</span>
+        <span class="match-rest">Nghỉ: <span>Đội 2</span></span>
+      </div>
+      <div class="match-body">
+        <div class="team-block">
+          <span class="team-label t3-label">Đội 3</span>
+          <span class="team-members-display" id="m-t3-l2b">M1 · M2</span>
+        </div>
+        <div class="score-center">
+          <span class="vs-label">VS</span>
+          <div class="score-inputs">
+            <input class="score-input" id="s6a" type="number" min="0" max="21" placeholder="–" oninput="calcMatch(6)">
+            <span class="score-sep">:</span>
+            <input class="score-input" id="s6b" type="number" min="0" max="21" placeholder="–" oninput="calcMatch(6)">
+          </div>
+          <div class="score-result" id="res6"></div>
+        </div>
+        <div class="team-block right">
+          <span class="team-label t1-label">Đội 1</span>
+          <span class="team-members-display" id="m-t1-l2b">M1 · M2</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- LƯỢT ARROW -->
+    <div class="luot-arrow">
+      <svg width="18" height="28" viewBox="0 0 18 28"><line x1="9" y1="0" x2="9" y2="20" stroke="#4fc3f7" stroke-width="1.5" stroke-dasharray="4,3"/><polygon points="4,17 9,26 14,17" fill="#4fc3f7"/></svg>
+      <span class="luot-arrow-lbl">chuyển lượt</span>
+    </div>
+
+    <!-- LƯỢT 3 -->
+    <div class="luot-header">
+      <span class="luot-badge l3-badge">Lượt 3</span>
+      <div class="luot-line l3-line"></div>
+      <span class="luot-type">Đôi Nam Nữ · M2 + N</span>
+    </div>
+
+    <!-- T7 -->
+    <div class="match-card l3-match">
+      <div class="match-top">
+        <span class="match-num-tag">#7</span>
+        <span class="match-rest">Nghỉ: <span>Đội 3</span></span>
+      </div>
+      <div class="match-body">
+        <div class="team-block">
+          <span class="team-label t1-label">Đội 1</span>
+          <span class="team-members-display" id="m-t1-l3">M2 · N</span>
+        </div>
+        <div class="score-center">
+          <span class="vs-label">VS</span>
+          <div class="score-inputs">
+            <input class="score-input" id="s7a" type="number" min="0" max="21" placeholder="–" oninput="calcMatch(7)">
+            <span class="score-sep">:</span>
+            <input class="score-input" id="s7b" type="number" min="0" max="21" placeholder="–" oninput="calcMatch(7)">
+          </div>
+          <div class="score-result" id="res7"></div>
+        </div>
+        <div class="team-block right">
+          <span class="team-label t2-label">Đội 2</span>
+          <span class="team-members-display" id="m-t2-l3">M2 · N</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow-sm">
+      <svg width="12" height="18" viewBox="0 0 12 18"><line x1="6" y1="0" x2="6" y2="12" stroke="#374151" stroke-width="1.5"/><polygon points="2,10 6,17 10,10" fill="#374151"/></svg>
+    </div>
+
+    <!-- T8 -->
+    <div class="match-card l3-match">
+      <div class="match-top">
+        <span class="match-num-tag">#8</span>
+        <span class="match-rest">Nghỉ: <span>Đội 1</span></span>
+      </div>
+      <div class="match-body">
+        <div class="team-block">
+          <span class="team-label t2-label">Đội 2</span>
+          <span class="team-members-display" id="m-t2-l3b">M2 · N</span>
+        </div>
+        <div class="score-center">
+          <span class="vs-label">VS</span>
+          <div class="score-inputs">
+            <input class="score-input" id="s8a" type="number" min="0" max="21" placeholder="–" oninput="calcMatch(8)">
+            <span class="score-sep">:</span>
+            <input class="score-input" id="s8b" type="number" min="0" max="21" placeholder="–" oninput="calcMatch(8)">
+          </div>
+          <div class="score-result" id="res8"></div>
+        </div>
+        <div class="team-block right">
+          <span class="team-label t3-label">Đội 3</span>
+          <span class="team-members-display" id="m-t3-l3">M2 · N</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow-sm">
+      <svg width="12" height="18" viewBox="0 0 12 18"><line x1="6" y1="0" x2="6" y2="12" stroke="#374151" stroke-width="1.5"/><polygon points="2,10 6,17 10,10" fill="#374151"/></svg>
+    </div>
+
+    <!-- T9 -->
+    <div class="match-card l3-match">
+      <div class="match-top">
+        <span class="match-num-tag">#9</span>
+        <span class="match-rest">Nghỉ: <span>Đội 2</span></span>
+      </div>
+      <div class="match-body">
+        <div class="team-block">
+          <span class="team-label t3-label">Đội 3</span>
+          <span class="team-members-display" id="m-t3-l3b">M2 · N</span>
+        </div>
+        <div class="score-center">
+          <span class="vs-label">VS</span>
+          <div class="score-inputs">
+            <input class="score-input" id="s9a" type="number" min="0" max="21" placeholder="–" oninput="calcMatch(9)">
+            <span class="score-sep">:</span>
+            <input class="score-input" id="s9b" type="number" min="0" max="21" placeholder="–" oninput="calcMatch(9)">
+          </div>
+          <div class="score-result" id="res9"></div>
+        </div>
+        <div class="team-block right">
+          <span class="team-label t1-label">Đội 1</span>
+          <span class="team-members-display" id="m-t1-l3b">M2 · N</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end flow-col -->
+
+  <!-- RANKING -->
+  <div class="ranking-col">
+    <div class="ranking-box">
+      <div class="ranking-title">🏆 Bảng Xếp Hạng</div>
+
+      <div class="ranking-row" id="rank1">
+        <div class="rank-pos">🥇</div>
+        <div class="rank-info">
+          <div class="rank-name" id="rn1">—</div>
+          <div class="rank-stats" id="rs1">W0 · L0 · HS: 0</div>
+        </div>
+        <div class="rank-pts" id="rp1">0đ</div>
+      </div>
+
+      <div class="ranking-row" id="rank2">
+        <div class="rank-pos">🥈</div>
+        <div class="rank-info">
+          <div class="rank-name" id="rn2">—</div>
+          <div class="rank-stats" id="rs2">W0 · L0 · HS: 0</div>
+        </div>
+        <div class="rank-pts" id="rp2">0đ</div>
+      </div>
+
+      <div class="ranking-row" id="rank3">
+        <div class="rank-pos">🥉</div>
+        <div class="rank-info">
+          <div class="rank-name" id="rn3">—</div>
+          <div class="rank-stats" id="rs3">W0 · L0 · HS: 0</div>
+        </div>
+        <div class="rank-pts" id="rp3">0đ</div>
+      </div>
+
+      <div class="criteria-box">
+        <div class="criteria-title">Tiêu chí xếp hạng</div>
+        <div class="criteria-item"><span>①</span><span>Số trận thắng (W)</span></div>
+        <div class="criteria-item"><span>②</span><span>Hiệu số điểm (ghi – thủng)</span></div>
+        <div class="criteria-item"><span>③</span><span>Tổng điểm ghi được</span></div>
+        <div class="criteria-item"><span>④</span><span>Đối đầu trực tiếp</span></div>
+      </div>
+
+      <div class="rule-box">
+        <strong>Thể lệ:</strong> 1 set · Đội chạm <strong>21 điểm trước</strong> là thắng · Không tính hoà
+      </div>
+    </div>
+  </div>
+
+</div><!-- end main -->
+
+<script>
+// ─── CẤU TRÚC 9 TRẬN ───
+// match: [teamA, teamB]  (1-indexed: 1=Đội1, 2=Đội2, 3=Đội3)
+// lượt: 1=M1+N, 2=M1+M2, 3=M2+N
+const MATCHES = [
+  null, // index 0 unused
+  { a: 1, b: 2, luot: 1 }, // #1
+  { a: 2, b: 3, luot: 1 }, // #2
+  { a: 3, b: 1, luot: 1 }, // #3
+  { a: 1, b: 2, luot: 2 }, // #4
+  { a: 2, b: 3, luot: 2 }, // #5
+  { a: 3, b: 1, luot: 2 }, // #6
+  { a: 1, b: 2, luot: 3 }, // #7
+  { a: 2, b: 3, luot: 3 }, // #8
+  { a: 3, b: 1, luot: 3 }, // #9
+];
+
+// member labels per lượt per team
+function getMemberLabel(team, luot) {
+  const n  = document.getElementById(`t${team}n`).value  || 'N';
+  const m1 = document.getElementById(`t${team}m1`).value || 'M1';
+  const m2 = document.getElementById(`t${team}m2`).value || 'M2';
+  if (luot === 1) return `${m1} · ${n}`;
+  if (luot === 2) return `${m1} · ${m2}`;
+  if (luot === 3) return `${m2} · ${n}`;
+}
+
+function getTeamName(t) {
+  return `Đội ${t}`;
+}
+
+function updateNames() {
+  // Update member displays in each match card
+  const mapping = [
+    null,
+    // #1: a=1 b=2 luot=1
+    { elA: 'm-t1-l1',  elB: 'm-t2-l1',  tA: 1, tB: 2, l: 1 },
+    // #2: a=2 b=3 luot=1
+    { elA: 'm-t2-l1b', elB: 'm-t3-l1',  tA: 2, tB: 3, l: 1 },
+    // #3: a=3 b=1 luot=1
+    { elA: 'm-t3-l1b', elB: 'm-t1-l1b', tA: 3, tB: 1, l: 1 },
+    // #4: a=1 b=2 luot=2
+    { elA: 'm-t1-l2',  elB: 'm-t2-l2',  tA: 1, tB: 2, l: 2 },
+    // #5: a=2 b=3 luot=2
+    { elA: 'm-t2-l2b', elB: 'm-t3-l2',  tA: 2, tB: 3, l: 2 },
+    // #6: a=3 b=1 luot=2
+    { elA: 'm-t3-l2b', elB: 'm-t1-l2b', tA: 3, tB: 1, l: 2 },
+    // #7: a=1 b=2 luot=3
+    { elA: 'm-t1-l3',  elB: 'm-t2-l3',  tA: 1, tB: 2, l: 3 },
+    // #8: a=2 b=3 luot=3
+    { elA: 'm-t2-l3b', elB: 'm-t3-l3',  tA: 2, tB: 3, l: 3 },
+    // #9: a=3 b=1 luot=3
+    { elA: 'm-t3-l3b', elB: 'm-t1-l3b', tA: 3, tB: 1, l: 3 },
+  ];
+  for (let i = 1; i <= 9; i++) {
+    const m = mapping[i];
+    const elA = document.getElementById(m.elA);
+    const elB = document.getElementById(m.elB);
+    if (elA) elA.textContent = getMemberLabel(m.tA, m.l);
+    if (elB) elB.textContent = getMemberLabel(m.tB, m.l);
+  }
+  updateRanking();
+}
+
+// ─── SCORE CALC ───
+function calcMatch(n) {
+  const a = parseInt(document.getElementById(`s${n}a`).value);
+  const b = parseInt(document.getElementById(`s${n}b`).value);
+  const res = document.getElementById(`res${n}`);
+
+  if (isNaN(a) || isNaN(b)) { res.innerHTML = ''; updateRanking(); return; }
+
+  const m = MATCHES[n];
+  let html = '';
+  if (a > b) {
+    html = `<span class="win-tag">Đội ${m.a} thắng</span>`;
+  } else if (b > a) {
+    html = `<span class="win-tag">Đội ${m.b} thắng</span>`;
+  } else {
+    html = `<span style="color:#94a3b8">Hoà</span>`;
+  }
+  res.innerHTML = html;
+  updateRanking();
+}
+
+// ─── RANKING ───
+function updateRanking() {
+  const stats = {
+    1: { w: 0, l: 0, pf: 0, pa: 0 },
+    2: { w: 0, l: 0, pf: 0, pa: 0 },
+    3: { w: 0, l: 0, pf: 0, pa: 0 },
+  };
+
+  for (let n = 1; n <= 9; n++) {
+    const a = parseInt(document.getElementById(`s${n}a`).value);
+    const b = parseInt(document.getElementById(`s${n}b`).value);
+    if (isNaN(a) || isNaN(b)) continue;
+    const m = MATCHES[n];
+    stats[m.a].pf += a; stats[m.a].pa += b;
+    stats[m.b].pf += b; stats[m.b].pa += a;
+    if (a > b)      { stats[m.a].w++; stats[m.b].l++; }
+    else if (b > a) { stats[m.b].w++; stats[m.a].l++; }
+  }
+
+  const teams = [1, 2, 3].map(t => ({
+    t,
+    name: getTeamName(t),
+    w: stats[t].w,
+    l: stats[t].l,
+    hs: stats[t].pf - stats[t].pa,
+    pf: stats[t].pf,
+  }));
+
+  teams.sort((x, y) => {
+    if (y.w !== x.w) return y.w - x.w;
+    if (y.hs !== x.hs) return y.hs - x.hs;
+    return y.pf - x.pf;
+  });
+
+  const medals = ['rn1','rn2','rn3'];
+  const stats_el = ['rs1','rs2','rs3'];
+  const pts_el = ['rp1','rp2','rp3'];
+
+  teams.forEach((tm, i) => {
+    document.getElementById(medals[i]).textContent = tm.name;
+    document.getElementById(stats_el[i]).textContent =
+      `W${tm.w} · L${tm.l} · HS: ${tm.hs >= 0 ? '+' : ''}${tm.hs}`;
+    document.getElementById(pts_el[i]).textContent = `${tm.w * 2}đ`;
+  });
+}
+
+// init
+updateNames();
+</script>
+</body>
+</html>

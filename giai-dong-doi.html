@@ -49,6 +49,9 @@
     th, td { border: 1px solid #cbd5e1; padding: 10px; text-align: center; }
     th { background: #1e3a8a; color: white; }
     tr.active-row { background: #fef08a !important; font-weight: bold; }
+    tr.match-row { cursor: pointer; }
+    tr.match-row:hover { background: #eff6ff; }
+    tr.active-row:hover { background: #fef08a !important; }
     tr:nth-child(even) { background: #f8fafc; }
     .target-score { font-weight: bold; color: #dc2626; background: #fef2f2; border-radius: 4px; padding: 2px 6px; }
     .score-input { width: 50px; padding: 5px; text-align: center; font-weight: bold; font-size: 14px; border: 1px solid #94a3b8; border-radius: 4px; }
@@ -59,6 +62,13 @@
 
     .btn-reset { display: block; width: 100%; padding: 12px; background: #64748b; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 20px; }
     .btn-reset:hover { background: #475569; }
+    .match-selector { grid-column: 1 / span 2; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 8px; }
+    .match-selector label { color: #94a3b8; font-size: 0.8rem; font-weight: 600; }
+    .match-selector select { padding: 5px 10px; background: #1e293b; border: 1px solid #334155; border-radius: 6px; color: #e0e6f0; font-size: 0.85rem; }
+    .score-btn-row { display: flex; gap: 8px; margin-top: 10px; }
+    .score-btn { flex: 1; padding: 15px; font-size: 18px; font-weight: bold; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
+    .score-btn-minus { flex: 0 0 60px; padding: 15px 10px; font-size: 18px; font-weight: bold; color: white; border: none; border-radius: 8px; cursor: pointer; background: #475569; transition: background 0.2s; }
+    .score-btn-minus:hover { background: #374151; }
     .sync-status { text-align: right; font-size: 0.72rem; color: #94a3b8; margin-top: 6px; }
   </style>
 </head>
@@ -115,12 +125,21 @@
     <div>
       <div style="color:#fca5a5;font-weight:bold;">TỔNG ĐIỂM ĐỘI 1</div>
       <div class="display-total" id="live_total_1">0</div>
-      <button class="score-btn btn-team1" onclick="pressScore(1)">+1 ĐỘI 1</button>
+      <div class="score-btn-row">
+        <button class="score-btn-minus" onclick="pressScore(1, -1)">−1</button>
+        <button class="score-btn btn-team1" onclick="pressScore(1, 1)">+1 ĐỘI 1</button>
+      </div>
     </div>
     <div>
       <div style="color:#6ee7b7;font-weight:bold;">TỔNG ĐIỂM ĐỘI 2</div>
       <div class="display-total" id="live_total_2">0</div>
-      <button class="score-btn btn-team2" onclick="pressScore(2)">+1 ĐỘI 2</button>
+      <div class="score-btn-row">
+        <button class="score-btn-minus" onclick="pressScore(2, -1)">−1</button>
+        <button class="score-btn btn-team2" onclick="pressScore(2, 1)">+1 ĐỘI 2</button>
+      </div>
+    </div>
+    <div class="current-match-info" style="font-size:12px;color:#94a3b8;margin-top:0;">
+      👆 Click vào hàng trong bảng bên dưới để chọn trận đang đấu
     </div>
   </div>
 
@@ -187,7 +206,7 @@ ddDb.ref('admin_config/super_admin_password').on('value', snap => {
   const tbody = document.getElementById('match_tbody');
   let html = '';
   for (let i = 1; i <= 10; i++) {
-    html += `<tr id="row_${i}">
+    html += `<tr id="row_${i}" class="match-row" onclick="ddSelectMatch(${i})" title="Click để chọn trận ${i}">
       <td><b>${i}</b></td>
       <td><span class="badge ${badges[i-1]}</span></td>
       <td id="t${i}_d1"></td><td id="t${i}_d2"></td>
@@ -239,6 +258,9 @@ function ddSwitchTournament(id) {
     const data = snap.val() || {};
     ddCurrentMatch = data.currentMatch || 1;
     ddIsMatchLocked = data.isMatchLocked || false;
+    // Sync match selector UI
+    const sel = document.getElementById('dd_match_select');
+    if (sel) sel.value = ddCurrentMatch;
     // Load referee pass from tournament list
     if (ddTournamentsList[id]) {
       ddCurrentPass = ddTournamentsList[id].refereePass || "";
@@ -312,6 +334,15 @@ function ddSave() {
   ddRef.update({ currentMatch: ddCurrentMatch, isMatchLocked: ddIsMatchLocked, names, scores });
 }
 
+function ddSelectMatch(n) {
+  const pass = document.getElementById('dd_ref_pass')?.value || '';
+  if (!ddCheckPermission(pass)) { alert('🔒 Cần mật khẩu trọng tài để chọn trận!'); return; }
+  ddCurrentMatch = parseInt(n);
+  ddIsMatchLocked = false;
+  updateRowHighlight();
+  ddSave();
+}
+
 function ddCheckScoreInput(el) {
   const pass = document.getElementById('dd_ref_pass')?.value || '';
   if (!ddCheckPermission(pass)) {
@@ -347,6 +378,8 @@ function updateRowHighlight() {
     const row = document.getElementById(`row_${i}`);
     if (row) row.classList.remove('active-row');
   }
+  const sel = document.getElementById('dd_match_select');
+  if (sel && sel.value != ddCurrentMatch) sel.value = ddCurrentMatch;
   if (ddCurrentMatch <= 10) {
     const activeRow = document.getElementById(`row_${ddCurrentMatch}`);
     if (activeRow) {
@@ -361,12 +394,22 @@ function updateRowHighlight() {
   }
 }
 
-function pressScore(team) {
-  if (ddCurrentMatch > 10 || ddIsMatchLocked) return;
+function ddSelectMatch(val) {
+  ddCurrentMatch = parseInt(val);
+  ddIsMatchLocked = false;
+  updateRowHighlight();
+  ddSave();
+}
+
+function pressScore(team, delta) {
   const pass = document.getElementById('dd_ref_pass')?.value || '';
   if (!ddCheckPermission(pass)) { alert('🔒 Sai mật khẩu trọng tài!'); return; }
   const el = document.getElementById(`s${ddCurrentMatch}_${team}`);
-  if (el) { el.value = (parseInt(el.value) || 0) + 1; calculateTotal(); ddSave(); }
+  if (!el) return;
+  const newVal = Math.max(0, (parseInt(el.value) || 0) + delta);
+  el.value = newVal;
+  calculateTotal();
+  ddSave();
 }
 
 function calculateTotal() {

@@ -385,13 +385,14 @@ body {
   <div class="mini-tm-row">
     <span class="mini-tm-label">➕ Tạo giải:</span>
     <input class="mini-tm-input" id="mini_new_name" placeholder="Tên giải đấu mới...">
+    <input class="mini-tm-input" id="mini_new_pass" placeholder="Mật khẩu trọng tài..." type="password" style="max-width:180px;">
     <button class="mini-btn-create" onclick="miniCreateTournament()">Tạo & Thiết Lập</button>
   </div>
 </div>
 <div class="mini-sync-status" id="mini_sync_status">⏳ Đang kết nối Firebase...</div>
 
 <div class="header">
-  <h1>🏸 Giải Cầu Lông Mini</h1>
+  <h1 id="mini_title" onclick="miniSecretClick()" style="cursor:default;">🏸 Giải Cầu Lông Mini</h1>
   <p>3 Đội · 3 Lượt · 9 Trận · Set 21 điểm · Mỗi thành viên đấu đúng 2 trận</p>
 </div>
 
@@ -805,11 +806,11 @@ body {
 <script>
 // ── FIREBASE ──
 const miniFirebaseConfig = {
-  apiKey: "AIzaSyBuJcSMGQmVRQg8RZHMT4bR_FHQJQ_E_sA",
+  apiKey: "AIzaSyDVF-OImZ9yy9c_4clm1Idp3QAsCP56qcI",
   authDomain: "giai-cau-long-san-vuon.firebaseapp.com",
   databaseURL: "https://giai-cau-long-san-vuon-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "giai-cau-long-san-vuon",
-  storageBucket: "giai-cau-long-san-vuon.appspot.com",
+  storageBucket: "giai-cau-long-san-vuon.firebasestorage.app",
   messagingSenderId: "490739341912",
   appId: "1:490739341912:web:97c558dc2fa9ebb0bd882d"
 };
@@ -880,22 +881,32 @@ function miniSwitchTournament(id) {
 
 function miniCreateTournament() {
   const name = document.getElementById('mini_new_name').value.trim();
+  const pass = document.getElementById('mini_new_pass').value.trim();
   if (!name) { alert('Vui lòng nhập tên giải!'); return; }
   const id = 'mini_' + Date.now();
-  miniDb.ref('mini_list/' + id).set({ name, createdAt: Date.now() });
+  miniDb.ref('mini_list/' + id).set({ name, refereePass: pass || '', createdAt: Date.now() });
   miniDb.ref('mini_data/' + id).set({ names: {}, scores: {} });
   document.getElementById('mini_new_name').value = '';
+  document.getElementById('mini_new_pass').value = '';
   setTimeout(() => {
     document.getElementById('mini_select').value = id;
     miniSwitchTournament(id);
   }, 600);
 }
 
-function miniDeleteTournament() {
+async function miniDeleteTournament() {
   if (!miniCurrentId) return;
   const input = prompt('Nhập mật khẩu Admin để xóa giải này:');
   if (!input) return;
-  if (input.trim() !== miniAdminPass) { alert('❌ Mật khẩu không đúng!'); return; }
+  const cleanInput = input.trim();
+  const encoder = new TextEncoder();
+  const data = encoder.encode(cleanInput);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const inputHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2,'0')).join('');
+  if (cleanInput !== miniAdminPass && inputHash !== miniAdminPass) {
+    alert('❌ Mật khẩu không đúng!');
+    return;
+  }
   if (!confirm('Xóa giải "' + (miniTournamentsList[miniCurrentId]?.name || miniCurrentId) + '"? Không thể hoàn tác!')) return;
   miniDb.ref('mini_list/' + miniCurrentId).remove();
   miniDb.ref('mini_data/' + miniCurrentId).remove();
@@ -993,6 +1004,26 @@ function updateRanking() {
 }
 
 updateNames();
+
+// ── SECRET TRIGGER (triple-click title) ──
+var _miniSecretCount = 0;
+var _miniSecretTimer = null;
+function miniSecretClick() {
+  _miniSecretCount++;
+  clearTimeout(_miniSecretTimer);
+  _miniSecretTimer = setTimeout(() => { _miniSecretCount = 0; }, 2000);
+  if (_miniSecretCount >= 3) {
+    _miniSecretCount = 0;
+    if (miniCurrentId && miniTournamentsList[miniCurrentId]) {
+      const p = miniTournamentsList[miniCurrentId].refereePass;
+      if (p) {
+        alert('🔐 Mật khẩu trọng tài: ' + p);
+      } else {
+        alert('ℹ️ Giải này không có mật khẩu trọng tài.');
+      }
+    }
+  }
+}
 </script>
 </body>
 </html>

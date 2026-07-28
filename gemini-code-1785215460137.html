@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giải Cầu Lông - King of the Court (11 Người)</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --border: #e2e8f0;
+      --accent: #16a34a;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 15px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #0f172a;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--border);
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    @media (max-width: 600px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 10px 12px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      background-color: #f1f5f9;
+      color: #475569;
+    }
+    tr:nth-child(1) td:first-child { font-weight: bold; color: #d97706; } /* TOP 1 Gold */
+    tr:nth-child(2) td:first-child { font-weight: bold; color: #64748b; } /* TOP 2 Silver */
+    tr:nth-child(3) td:first-child { font-weight: bold; color: #b45309; } /* TOP 3 Bronze */
+
+    input, select, button {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      font-size: 14px;
+    }
+    button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+    button:hover { opacity: 0.9; }
+    .btn-danger { background-color: #dc2626; }
+    .btn-success { background-color: var(--accent); }
+    
+    .match-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+    }
+    .team-select {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      margin: 15px 0;
+      font-weight: bold;
+    }
+    .score-input {
+      width: 50px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>👑 King of the Court - 11 Người</h1>
+
+  <!-- MỤC 1: DÂN SÁCH NGƯỜI CHƠI -->
+  <div class="card">
+    <h2>1. Danh Sách 11 Vận Động Viên</h2>
+    <div id="player-inputs" class="grid-2">
+      <!-- Tự động tạo 11 ô nhập tên -->
+    </div>
+    <div style="text-align: center; margin-top: 15px;">
+      <button onclick="savePlayers()">💾 Cập Nhật Danh Sách Tên</button>
+    </div>
+  </div>
+
+  <!-- MỤC 2: TẠO TRẬN ĐẤU MỚI -->
+  <div class="card">
+    <h2>2. Bảng Điều Khiển Trận Đấu</h2>
+    <div class="match-box">
+      <div class="team-select">
+        <div>
+          <h4>Đội A</h4>
+          <select id="p1"></select> + <select id="p2"></select><br><br>
+          <input type="number" id="scoreA" class="score-input" value="0" min="0"> Điểm
+        </div>
+        <div style="font-size: 24px; color: #64748b;">VS</div>
+        <div>
+          <h4>Đội B</h4>
+          <select id="p3"></select> + <select id="p4"></select><br><br>
+          <input type="number" id="scoreB" class="score-input" value="0" min="0"> Điểm
+        </div>
+      </div>
+      <button class="btn-success" onclick="submitMatch()">✅ Luân Lưu & Lưu Kết Quả Trận Đấu</button>
+    </div>
+  </div>
+
+  <!-- MỤC 3: BẢNG XẾP HẠNG CÁ NHÂN -->
+  <div class="card">
+    <h2>🏆 Bảng Xếp Hạng Cá Nhân</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Hạng</th>
+          <th>Tên VĐV</th>
+          <th>Số Trận Đã Đánh</th>
+          <th>Thắng</th>
+          <th>Thua</th>
+          <th>Tổng Điểm Tích Lũy</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboard-body">
+        <!-- Dữ liệu BXH sẽ render vào đây -->
+      </tbody>
+    </table>
+    <div style="text-align: right; margin-top: 15px;">
+      <button class="btn-danger" onclick="resetTournament()">🔄 Reset Giải Đấu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// 🛠️ 1. CẤU HÌNH FIREBASE
+const firebaseConfig = {
+  apiKey: "AIzaSyDVF-OImZ9yy9c_4clm1Idp3QAsCP56qcI",
+  authDomain: "giai-cau-long-san-vuon.firebaseapp.com",
+  databaseURL: "https://giai-cau-long-san-vuon-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "giai-cau-long-san-vuon",
+  storageBucket: "giai-cau-long-san-vuon.firebasestorage.app",
+  messagingSenderId: "490739341912",
+  appId: "1:490739341912:web:97c558dc2fa9ebb0bd882d"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const kotcRef = db.ref('king_of_court_11p');
+
+let players = Array.from({length: 11}, (_, i) => `VĐV ${i + 1}`);
+let matchesHistory = [];
+
+// 🛠️ 2. KHỞI TẠO GIAO DIỆN NGUYÊN BẢN
+function initUI() {
+  const container = document.getElementById('player-inputs');
+  container.innerHTML = '';
+  players.forEach((p, idx) => {
+    container.innerHTML += `
+      <div>
+        <label>VĐV ${idx + 1}: </label>
+        <input type="text" id="player_input_${idx}" value="${p}">
+      </div>
+    `;
+  });
+  updateSelectOptions();
+}
+
+function updateSelectOptions() {
+  ['p1', 'p2', 'p3', 'p4'].forEach(selectId => {
+    const select = document.getElementById(selectId);
+    const currentVal = select.value;
+    select.innerHTML = '<option value="">--Chọn VĐV--</option>';
+    players.forEach(p => {
+      select.innerHTML += `<option value="${p}">${p}</option>`;
+    });
+    select.value = currentVal;
+  });
+}
+
+function savePlayers() {
+  players = players.map((_, idx) => {
+    return document.getElementById(`player_input_${idx}`).value.trim() || `VĐV ${idx + 1}`;
+  });
+  kotcRef.child('players').set(players);
+  alert("Đã cập nhật danh sách 11 VĐV!");
+}
+
+// 🛠️ 3. LẮNG NGHE DỮ LIỆU REALTIME
+kotcRef.on('value', (snapshot) => {
+  const data = snapshot.val() || {};
+  if (data.players) {
+    players = data.players;
+    players.forEach((p, idx) => {
+      if(document.getElementById(`player_input_${idx}`)) {
+        document.getElementById(`player_input_${idx}`).value = p;
+      }
+    });
+    updateSelectOptions();
+  }
+  
+  matchesHistory = data.matches ? Object.values(data.matches) : [];
+  calculateLeaderboard();
+});
+
+// 🛠️ 4. TÍNH BẢNG XẾP HẠNG CÁ NHÂN
+function calculateLeaderboard() {
+  let stats = {};
+  players.forEach(p => {
+    stats[p] = { name: p, played: 0, wins: 0, losses: 0, points: 0 };
+  });
+
+  matchesHistory.forEach(m => {
+    const scoreA = parseInt(m.scoreA) || 0;
+    const scoreB = parseInt(m.scoreB) || 0;
+    const teamA = [m.p1, m.p2];
+    const teamB = [m.p3, m.p4];
+
+    teamA.concat(teamB).forEach(p => {
+      if (stats[p]) stats[p].played += 1;
+    });
+
+    if (scoreA > scoreB) {
+      teamA.forEach(p => { if (stats[p]) { stats[p].wins += 1; stats[p].points += scoreA; } });
+      teamB.forEach(p => { if (stats[p]) { stats[p].losses += 1; stats[p].points += scoreB; } });
+    } else if (scoreB > scoreA) {
+      teamB.forEach(p => { if (stats[p]) { stats[p].wins += 1; stats[p].points += scoreB; } });
+      teamA.forEach(p => { if (stats[p]) { stats[p].losses += 1; stats[p].points += scoreA; } });
+    }
+  });
+
+  let leaderboard = Object.values(stats);
+  // Sắp xếp: Ưu tiên Tổng điểm tích lũy > Số trận thắng > Số trận đã chơi ít hơn
+  leaderboard.sort((a, b) => b.points - a.points || b.wins - a.wins || a.played - b.played);
+
+  const tbody = document.getElementById('leaderboard-body');
+  tbody.innerHTML = '';
+  leaderboard.forEach((item, index) => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${index + 1}</td>
+        <td><strong>${item.name}</strong></td>
+        <td>${item.played}</td>
+        <td style="color: green;">${item.wins}</td>
+        <td style="color: red;">${item.losses}</td>
+        <td><strong>${item.points}</strong></td>
+      </tr>
+    `;
+  });
+}
+
+// 🛠️ 5. LƯU KẾT QUẢ TRẬN ĐẤU
+function submitMatch() {
+  const p1 = document.getElementById('p1').value;
+  const p2 = document.getElementById('p2').value;
+  const p3 = document.getElementById('p3').value;
+  const p4 = document.getElementById('p4').value;
+  const scoreA = document.getElementById('scoreA').value;
+  const scoreB = document.getElementById('scoreB').value;
+
+  if (!p1 || !p2 || !p3 || !p4) {
+    alert("Vui lòng chọn đủ 4 người chơi vào sân!");
+    return;
+  }
+  
+  const selected = [p1, p2, p3, p4];
+  if (new Set(selected).size !== 4) {
+    alert("Trùng người chơi! 1 người không thể chọn 2 lần.");
+    return;
+  }
+
+  kotcRef.child('matches').push({
+    p1, p2, p3, p4, scoreA, scoreB, timestamp: Date.now()
+  }).then(() => {
+    // Reset điểm nhập
+    document.getElementById('scoreA').value = 0;
+    document.getElementById('scoreB').value = 0;
+    alert("Đã cập nhật kết quả trận đấu!");
+  });
+}
+
+function resetTournament() {
+  if (confirm("CẢNH BÁO: Xóa toàn bộ lịch sử đấu và đưa điểm số về 0?")) {
+    kotcRef.child('matches').remove();
+  }
+}
+
+initUI();
+</script>
+
+</body>
+</html>

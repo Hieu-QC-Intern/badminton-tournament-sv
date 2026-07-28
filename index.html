@@ -152,6 +152,8 @@ body {
 .k11-input-item input { padding: 6px; border: 1px solid var(--border2); border-radius: 6px; font-weight: 600; font-size: 0.8rem; }
 .btn-action-primary { background: #0ea5e9; color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
 .btn-action-primary:hover { background: #0284c7; }
+.btn-action-warning { background: #eab308; color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
+.btn-action-danger { background: #ef4444; color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
 
 @media (max-width: 768px) {
   .tournament-selector-box { flex-direction: column; align-items: stretch; }
@@ -470,8 +472,9 @@ body {
     <div class="k11-grid" id="k11-player-inputs">
       <!-- Sinh tự động 11 ô input tên -->
     </div>
-    <div style="text-align: center; margin-top: 12px;">
-      <button class="btn-action-primary" onclick="initKing11System()">🎲 Khởi Tạo / Reset Lịch Thi Đấu Tự Động</button>
+    <div style="text-align: center; margin-top: 14px; display: flex; justify-content: center; gap: 10px;">
+      <button class="btn-action-primary" onclick="saveKing11Players()">💾 Cập Nhật Danh Sách Tên VĐV</button>
+      <button class="btn-action-danger" onclick="createNewKing11Schedule()">🔄 Tạo Mới / Reset Lịch Thi Đấu</button>
     </div>
   </div>
 
@@ -501,7 +504,7 @@ body {
           <th>Vận Động Viên</th>
           <th>Số Trận</th>
           <th>Thắng</th>
-          <th>Hệu Số</th>
+          <th>Hiệu Số</th>
         </tr>
       </thead>
       <tbody id="k11-leaderboard-body">
@@ -1013,47 +1016,54 @@ function renderKing11InputInputs() {
   const container = document.getElementById('k11-player-inputs');
   container.innerHTML = "";
   for(let i=1; i<=11; i++) {
-    const defaultName = `VĐV ${i}`;
     container.innerHTML += `
       <div class="k11-input-item">
         <label>VĐV ${i}</label>
-        <input type="text" id="k11_p_${i}" value="${defaultName}" onchange="saveKing11Players()">
+        <input type="text" id="k11_p_${i}" placeholder="VĐV ${i}">
       </div>
     `;
   }
 }
 
-function saveKing11Players() {
+function getInputsKing11Players() {
   let names = [];
   for(let i=1; i<=11; i++) {
-    let val = document.getElementById(`k11_p_${i}`).value.trim();
+    let el = document.getElementById(`k11_p_${i}`);
+    let val = el ? el.value.trim() : "";
     names.push(val || `VĐV ${i}`);
   }
-  db.ref('king11_data/players').set(names);
+  return names;
 }
 
-function initKing11System() {
-  if(!confirm("Xác nhận tạo mới hoặc reset toàn bộ giải King 11 người?")) return;
-  saveKing11Players();
-  
-  // Thuật toán xoay vòng ghép cặp tự động ưu tiên số trận ít nhất
+function saveKing11Players() {
+  let names = getInputsKing11Players();
+  db.ref('king11_data/players').set(names).then(() => {
+    alert("✅ Đã cập nhật danh sách VĐV!");
+  });
+}
+
+function createNewKing11Schedule() {
+  if(!confirm("⚠️ Bạn có chắc chắn muốn TẠO MỚI/RESET toàn bộ lịch thi đấu & tỷ số King 11 người?")) return;
+  let names = getInputsKing11Players();
   k11Matches = generateKing11Matches();
-  db.ref('king11_data/matches').set(k11Matches);
+  
+  db.ref('king11_data').set({
+    players: names,
+    matches: k11Matches
+  }).then(() => {
+    alert("🎉 Đã tạo lịch thi đấu mới thành công!");
+  });
 }
 
 function generateKing11Matches() {
   let matches = [];
   let playCounts = Array(11).fill(0);
-  let totalMatches = 11; // Mỗi người đánh 4 trận -> Tổng số trận = 11 * 4 / 4 = 11 trận
+  let totalMatches = 11;
 
   for(let m=1; m<=totalMatches; m++) {
-    // Sắp xếp các chỉ số VĐV ưu tiên người chơi ít trận nhất
     let indices = [0,1,2,3,4,5,6,7,8,9,10].sort((a,b) => playCounts[a] - playCounts[b]);
-    
-    // Lấy 4 VĐV ít trận nhất
     let chosen = indices.slice(0, 4);
     
-    // Cập nhật số trận đã tham gia
     chosen.forEach(idx => playCounts[idx]++);
 
     matches.push({
@@ -1073,7 +1083,6 @@ function bindKing11Realtime() {
     k11Players = data.players || Array.from({length: 11}, (_, i) => `VĐV ${i+1}`);
     k11Matches = data.matches || [];
 
-    // Cập nhật tên vào input
     k11Players.forEach((pName, idx) => {
       let el = document.getElementById(`k11_p_${idx+1}`);
       if(el && document.activeElement !== el) el.value = pName;
@@ -1089,7 +1098,7 @@ function renderKing11Schedule() {
   tbody.innerHTML = "";
 
   if(k11Matches.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="4">Bấm "Khởi Tạo / Reset" để sinh lịch thi đấu.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="4" style="padding:20px; color:var(--text3)">Chưa có lịch thi đấu. Hãy điền tên VĐV và bấm <b>"Tạo Mới / Reset Lịch Thi Đấu"</b>.</td></tr>`;
     return;
   }
 
@@ -1101,14 +1110,14 @@ function renderKing11Schedule() {
 
     tbody.innerHTML += `
       <tr>
-        <td>${m.id}</td>
+        <td><b>${m.id}</b></td>
         <td class="cell-left"><span class="player-display">${nameA1} + ${nameA2}</span></td>
         <td>
           <div class="score-stepper-container">
             <input type="number" id="k11_sA_${idx}" class="score-in" style="width:40px;" value="${m.scoreA}" placeholder="0">
             <span class="score-colon">:</span>
             <input type="number" id="k11_sB_${idx}" class="score-in" style="width:40px;" value="${m.scoreB}" placeholder="0">
-            <button class="btn-create" style="margin-left:6px; padding:4px 8px;" onclick="saveKing11Score(${idx})">💾 Lưu Tỉ Số</button>
+            <button class="btn-create" style="margin-left:6px; padding:4px 8px;" onclick="saveKing11Score(${idx})">💾 Lưu</button>
           </div>
         </td>
         <td class="cell-left"><span class="player-display">${nameB1} + ${nameB2}</span></td>
@@ -1127,6 +1136,8 @@ function saveKing11Score(matchIndex) {
   db.ref(`king11_data/matches/${matchIndex}`).update({
     scoreA: sA !== "" ? parseInt(sA) : "",
     scoreB: sB !== "" ? parseInt(sB) : ""
+  }).then(() => {
+    alert(`Đã lưu tỷ số Trận ${matchIndex + 1}!`);
   });
 }
 
@@ -1144,14 +1155,12 @@ function calcKing11Leaderboard() {
       let sa = parseInt(m.scoreA);
       let sb = parseInt(m.scoreB);
 
-      // Đội A
       m.teamA.forEach(pIdx => {
         stats[pIdx].played++;
         stats[pIdx].diff += (sa - sb);
         if(sa > sb) stats[pIdx].won++;
       });
 
-      // Đội B
       m.teamB.forEach(pIdx => {
         stats[pIdx].played++;
         stats[pIdx].diff += (sb - sa);
@@ -1160,7 +1169,6 @@ function calcKing11Leaderboard() {
     }
   });
 
-  // Xếp hạng theo: Số trận thắng -> Hiệu số
   stats.sort((a,b) => (b.won - a.won) || (b.diff - a.diff));
 
   const tbody = document.getElementById('k11-leaderboard-body');

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hệ Thống Đa Giải Đấu Cầu Lông For Newbie</title>
+<title>Hệ Thống Đa Giải Đấu Cầu Lông Pro</title>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
@@ -49,7 +49,16 @@ body {
 .header h1 { font-size: 1.4rem; font-weight: 800; color: var(--text); }
 .header-sub { font-size: 0.75rem; color: var(--text3); margin-top: 4px; line-height: 1.3; }
 
-/* ── KHU VỰC CHỌN VÀ TẠO GIẢI ĐẤU NÂNG CAO ── */
+/* ── PAGE TABS ── */
+.page-tabs { display: flex; gap: 0; background: #1e293b; border-bottom: 2px solid #334155; margin-bottom: 16px; overflow-x: auto; }
+.page-tab { padding: 10px 18px; font-size: 0.85rem; font-weight: 600; cursor: pointer; color: #94a3b8; border: none; background: none; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: color 0.2s, border-color 0.2s; white-space: nowrap; }
+.page-tab:hover { color: #e2e8f0; }
+.page-tab.active { color: #38bdf8; border-bottom-color: #38bdf8; }
+.page-view { display: none; }
+.page-view.active { display: block; }
+.iframe-view { width: 100%; height: calc(100vh - 120px); border: none; display: block; }
+
+/* ── KHU VỰC QUẢN LÝ GIẢI ĐẤU ── */
 .tournament-selector-box {
   background: #fff;
   border: 1px solid var(--border2);
@@ -62,13 +71,7 @@ body {
   flex-direction: column;
   gap: 12px;
 }
-.selector-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  justify-content: space-between;
-}
+.selector-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
 .selector-group { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 280px; }
 .selector-group select { flex: 1; padding: 8px; border-radius: 6px; border: 1.5px solid var(--border2); font-weight: 600; outline: none; }
 .search-input { padding: 8px 12px; border-radius: 6px; border: 1.5px solid var(--border2); outline: none; font-size: 0.85rem; width: 100%; max-width: 220px; background: #fafafa; }
@@ -78,30 +81,10 @@ body {
 .btn-create { background: var(--accent); color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
 .btn-delete-tournament { background: var(--red); color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
 
-.section-title {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text2);
-  text-align: center;
-  margin: 20px 0 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
+.section-title { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text2); text-align: center; margin: 20px 0 8px; display: flex; align-items: center; justify-content: center; gap: 6px; }
 
-/* ── KHU VỰC BỐC THĂM ── */
-.draw-box {
-  background: #fff;
-  border: 2px dashed #0ea5e9;
-  border-radius: 12px;
-  padding: 14px;
-  max-width: 800px;
-  margin: 0 auto 16px;
-  box-shadow: var(--shadow);
-}
+/* ── BỐC THĂM KING 8 ── */
+.draw-box { background: #fff; border: 2px dashed #0ea5e9; border-radius: 12px; padding: 14px; max-width: 800px; margin: 0 auto 16px; box-shadow: var(--shadow); }
 .draw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .draw-list-group { background: var(--surface2); border: 1px solid var(--border); padding: 10px; border-radius: 8px; }
 .draw-list-title { font-size: 0.75rem; font-weight: 700; margin-bottom: 8px; color: var(--text2); }
@@ -120,18 +103,8 @@ body {
 .team-group-title { font-size: 0.75rem; font-weight: 700; margin-bottom: 6px; color: var(--text2); }
 .input-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .input-pair input { width: 100%; border: 1.5px solid var(--border2); border-radius: 6px; padding: 8px; font-size: 0.8rem; font-weight: 600; outline: none; }
-.input-pair input:focus { border-color: var(--accent); }
 
-#password-section {
-  max-width: 800px;
-  margin: 0 auto 16px;
-  background: #fff;
-  padding: 12px;
-  border: 2px solid #0ea5e9;
-  border-radius: 12px;
-  text-align: center;
-  box-shadow: var(--shadow);
-}
+#password-section { max-width: 800px; margin: 0 auto 16px; background: #fff; padding: 12px; border: 2px solid #0ea5e9; border-radius: 12px; text-align: center; box-shadow: var(--shadow); }
 
 /* ── TABLE SCHEDULE ── */
 .schedule-box { background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px; max-width: 950px; margin: 0 auto 16px; box-shadow: var(--shadow); }
@@ -152,7 +125,6 @@ body {
 .btn-step { width: 32px; height: 34px; border: none; background: #f8fafc; font-size: 1.1rem; font-weight: bold; color: var(--text2); cursor: pointer; user-select: none; }
 .score-in { width: 38px; height: 34px; border: none; border-left: 1px solid var(--border2); border-right: 1px solid var(--border2); text-align: center; font-size: 0.95rem; font-weight: 700; outline: none; }
 .score-in::-webkit-outer-spin-button, .score-in::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-
 .score-stepper.win-style { border-color: #86efac; background: #f0fdf4; }
 .score-stepper.win-style .score-in { background: #f0fdf4; color: var(--green); }
 .score-stepper.lose-style { border-color: #fca5a5; background: #fef2f2; }
@@ -173,6 +145,14 @@ body {
 .btn-reset { background: #ef4444; color: white; border: none; padding: 8px 16px; font-size: 0.8rem; font-weight: 700; border-radius: 8px; cursor: pointer; }
 .btn-secondary { background: #64748b; color: white; border: none; padding: 8px 16px; font-size: 0.8rem; font-weight: 700; border-radius: 8px; cursor: pointer; }
 
+/* ── CSS RIÊNG BỔ SUNG CHO KING 11 ── */
+.k11-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; }
+.k11-input-item { display: flex; flex-direction: column; gap: 4px; }
+.k11-input-item label { font-size: 0.7rem; font-weight: bold; color: var(--text2); }
+.k11-input-item input { padding: 6px; border: 1px solid var(--border2); border-radius: 6px; font-weight: 600; font-size: 0.8rem; }
+.btn-action-primary { background: #0ea5e9; color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
+.btn-action-primary:hover { background: #0284c7; }
+
 @media (max-width: 768px) {
   .tournament-selector-box { flex-direction: column; align-items: stretch; }
   .selector-row { flex-direction: column; align-items: stretch; }
@@ -188,22 +168,12 @@ body {
   .sched-table tr.conditional-row.show { display: block; }
   .sched-table td { border: none; padding: 4px 0; text-align: left; }
   .sched-table td:nth-child(1) { display: inline-block; font-weight: bold; color: var(--text3); font-size: 0.75rem; margin-right: 8px; }
-  .sched-table td:nth-child(1)::before { content: "Lượt "; }
+  .sched-table td:nth-child(1)::before { content: "Trận "; }
   .sched-table td:nth-child(2) { display: inline-block; margin-right: 8px; }
   .sched-table td:nth-child(3) { display: inline-block; font-size: 0.75rem; color: var(--text2); font-weight: bold; }
   .sched-table td:nth-child(4), .sched-table td:nth-child(6) { display: block; width: 100%; padding: 6px 4px; background: #fff; border-radius: 6px; margin: 4px 0; border: 1px dashed var(--border); padding-left: 8px !important; }
   .sched-table td:nth-child(5) { display: flex; justify-content: center; padding: 8px 0; }
 }
-
-/* ── PAGE TABS ── */
-.page-tabs { display: flex; gap: 0; background: #1e293b; border-bottom: 2px solid #334155; margin-bottom: 0; }
-.page-tab { padding: 10px 22px; font-size: 0.88rem; font-weight: 600; cursor: pointer; color: #94a3b8; border: none; background: none; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: color 0.2s, border-color 0.2s; }
-.page-tab:hover { color: #e2e8f0; }
-.page-tab.active { color: #38bdf8; border-bottom-color: #38bdf8; }
-.page-view { display: none; }
-.page-view.active { display: block; }
-.iframe-view { width: 100%; height: calc(100vh - 120px); border: none; display: block; }
-
 </style>
 </head>
 <body>
@@ -216,10 +186,12 @@ body {
 
 <div class="page-tabs">
   <button class="page-tab active" onclick="switchPage('main')">🏆 King's Cup ( 8 người )</button>
+  <button class="page-tab" onclick="switchPage('king11')">👑 King 11 Người (Tự Động)</button>
   <button class="page-tab" onclick="switchPage('dongdoi')">👥 Giải Đồng Đội ( 10 người )</button>
   <button class="page-tab" onclick="switchPage('mini')">🏸 Giải Round-Robin ( 9 người )</button>
 </div>
 
+<!-- ════════════════════ PAGE 1: KING 8 NGƯỜI ════════════════════ -->
 <div id="page-main" class="page-view active">
 
 <div class="tournament-selector-box">
@@ -227,8 +199,7 @@ body {
     <div class="selector-group">
       <label for="tournament_select" style="font-weight: bold; font-size: 0.9rem; min-width: 110px;">🏆 Chọn giải đấu:</label>
       <input type="text" id="tournament_search" class="search-input" placeholder="🔍 Tìm kiếm giải..." oninput="filterTournaments()">
-      <select id="tournament_select" onchange="switchTournament(this.value)">
-        </select>
+      <select id="tournament_select" onchange="switchTournament(this.value)"></select>
       <button class="btn-delete-tournament" onclick="deleteTournamentPermanently()">❌ Xóa giải</button>
     </div>
   </div>
@@ -490,7 +461,67 @@ body {
   <button id="btn-tournament-clear" class="btn-reset" onclick="clearTournament()" style="display: none;">🔄 Xóa sạch giải đấu hiện tại</button>
 </div>
 
+</div><!-- end page-main -->
+
+<!-- ════════════════════ PAGE 2: KING 11 NGƯỜI (TỰ ĐỘNG) ════════════════════ -->
+<div id="page-king11" class="page-view">
+  <div class="setup-box">
+    <div class="section-title" style="margin-top:0;">👥 Danh sách 11 Vận Động Viên</div>
+    <div class="k11-grid" id="k11-player-inputs">
+      <!-- Sinh tự động 11 ô input tên -->
+    </div>
+    <div style="text-align: center; margin-top: 12px;">
+      <button class="btn-action-primary" onclick="initKing11System()">🎲 Khởi Tạo / Reset Lịch Thi Đấu Tự Động</button>
+    </div>
+  </div>
+
+  <div class="schedule-box">
+    <div class="section-title">📅 Lịch Thi Đấu Xoay Vòng (Ưu Tiên Người Ít Trận)</div>
+    <table class="sched-table">
+      <thead>
+        <tr>
+          <th style="width: 8%">Trận</th>
+          <th style="width: 36%">Đội A</th>
+          <th style="width: 20%">Tỷ Số</th>
+          <th style="width: 36%">Đội B</th>
+        </tr>
+      </thead>
+      <tbody id="k11-schedule-body">
+        <!-- Render tự động các trận đấu -->
+      </tbody>
+    </table>
+  </div>
+
+  <div class="final-box" style="max-width: 650px;">
+    <div class="final-title">📊 Bảng Xếp Hạng Tích Lũy Realtime</div>
+    <table class="sched-table" style="background:#fff;">
+      <thead>
+        <tr>
+          <th>Thứ Hạng</th>
+          <th>Vận Động Viên</th>
+          <th>Số Trận</th>
+          <th>Thắng</th>
+          <th>Hệu Số</th>
+        </tr>
+      </thead>
+      <tbody id="k11-leaderboard-body">
+        <!-- Render Bảng xếp hạng -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════════════════════ PAGE 3 & 4: DỒNG ĐỘI & MINI ════════════════════ -->
+<div id="page-dongdoi" class="page-view">
+  <iframe class="iframe-view" src="giai-dong-doi.html" id="iframe-dongdoi"></iframe>
+</div>
+
+<div id="page-mini" class="page-view">
+  <iframe class="iframe-view" src="giai-mini.html" id="iframe-mini"></iframe>
+</div>
+
 <script>
+// ── 🛠️ FIREBASE CONFIG & GLOBAL VARS ──
 const firebaseConfig = {
   apiKey: "AIzaSyDVF-OImZ9yy9c_4clm1Idp3QAsCP56qcI",
   authDomain: "giai-cau-long-san-vuon.firebaseapp.com",
@@ -508,14 +539,10 @@ const db = firebase.database();
 var currentTournamentId = "giai_mac_dinh";
 var dbRef = null;
 var currentTournamentPassword = "170397";
-var globalTournamentsList = {}; // Lưu cache danh sách giải để phục vụ Search
-
-// CHUỖI MẬT KHẨU ADMIN TỐI CAO ĐÃ ĐƯỢC MÃ HÓA CHUẨN (Ứng với pass: 260197)
+var globalTournamentsList = {};
 const SUPER_ADMIN_HASH = "6e42b9347a505b2a0ffeb054f0fa3c4415840d04db96c81bf373fc345df990b7";
+var superAdminPasswordFromFirebase = "";
 
-var superAdminPasswordFromFirebase = ""; // Lưu mật khẩu admin tối cao từ Firebase
-
-// Fetch admin password từ Firebase ngay khi khởi động
 db.ref('admin_config/super_admin_password').on('value', (snapshot) => {
   superAdminPasswordFromFirebase = snapshot.val() ? snapshot.val().toString().trim() : "";
 });
@@ -539,11 +566,8 @@ var poolMembers = [];
 var poolTeams = [1, 2, 3, 4];
 var drawHistory = {};
 
-// ── 🔒 TÍNH NĂNG ẨN: GHÉP CẶP BÍ MẬT ──
-var _secretClickCount = 0;
-var _secretClickTimer = null;
-var _secretModeActive = false;
-
+// ── 🔒 GHÉP CẶP BÍ MẬT KING 8 ──
+var _secretClickCount = 0, _secretClickTimer = null, _secretModeActive = false;
 {
   const badge = document.querySelector('.header-badge');
   if (badge) {
@@ -574,11 +598,7 @@ function executeDrawSecret(captainIndex) {
     if (memVal.includes('hi\u1ebfu') || memVal.includes('hieu')) hieuMemIdx = i;
   }
 
-  if (linhCapIdx === null || hieuMemIdx === null) {
-    _secretModeActive = false;
-    executeDraw(captainIndex);
-    return;
-  }
+  if (linhCapIdx === null || hieuMemIdx === null) { _secretModeActive = false; executeDraw(captainIndex); return; }
 
   const hieuName = document.getElementById('mem_' + hieuMemIdx).value.trim();
 
@@ -601,9 +621,7 @@ function executeDrawSecret(captainIndex) {
     const randTeamIdx = Math.floor(Math.random() * poolTeams.length);
     chosenTeamSlot = poolTeams.splice(randTeamIdx, 1)[0];
   } else {
-    let filteredMembers = poolMembers.filter(function(m) {
-      return !(m.toLowerCase().includes('hi\u1ebfu') || m.toLowerCase().includes('hieu'));
-    });
+    let filteredMembers = poolMembers.filter(m => !(m.toLowerCase().includes('hi\u1ebfu') || m.toLowerCase().includes('hieu')));
     if (filteredMembers.length === 0) filteredMembers = poolMembers;
     const randMemIdx = Math.floor(Math.random() * filteredMembers.length);
     chosenMember = filteredMembers[randMemIdx];
@@ -614,16 +632,9 @@ function executeDrawSecret(captainIndex) {
 
   drawHistory[captainIndex] = { captain: captainName, member: chosenMember, teamSlot: chosenTeamSlot };
 
-  dbRef.update({
-    draw_history: drawHistory,
-    pool_members: poolMembers,
-    pool_teams: poolTeams
-  });
+  dbRef.update({ draw_history: drawHistory, pool_members: poolMembers, pool_teams: poolTeams });
 
-  if (Object.keys(drawHistory).length === 4) {
-    _secretModeActive = false;
-    autoFillTournamentRows();
-  }
+  if (Object.keys(drawHistory).length === 4) { _secretModeActive = false; autoFillTournamentRows(); }
 }
 
 const scoreIds = [
@@ -633,38 +644,27 @@ const scoreIds = [
 ];
 const nameIds = ['t1_p1','t1_p2', 't2_p1','t2_p2', 't3_p1','t3_p2', 't4_p1','t4_p2'];
 
-// ── 🛠️ HÀM KHỞI TẠO VÀ ĐỒNG BỘ ĐA GIẢI ĐẤU ──
 function initTournamentSystem() {
-  // Tự động lắng nghe và cập nhật danh sách giải đấu từ Firebase
   db.ref('tournaments_list').on('value', (snapshot) => {
     globalTournamentsList = snapshot.val() || {};
-    
     if (!snapshot.exists()) {
       db.ref('tournaments_list/giai_mac_dinh').set("Giải Đấu Mặc Định");
       db.ref('tournaments_data/giai_mac_dinh').set({ tournament_password: "170397" });
       return;
     }
-
     renderTournamentSelect(globalTournamentsList);
   });
 }
 
-// HÀM KIỂM TRA PHÂN QUYỀN BẰNG MÃ HÓA AN TOÀN SHA-256 (FIX LỖI TOSTRING)
 function checkPermission(inputPass) {
   if (!inputPass) return false;
-  
-  // Ép định dạng băm mã hóa sang Hex string viết thường chuẩn chỉ
   const inputHash = CryptoJS.SHA256(inputPass.trim()).toString(CryptoJS.enc.Hex).toLowerCase();
-  
-  // Hợp lệ nếu trùng mật khẩu riêng của giải HOẶC trùng mật khẩu Admin tối cao SHA-256
   return (inputPass === currentTournamentPassword || inputHash === SUPER_ADMIN_HASH);
 }
 
-// Hàm render danh sách giải vào thẻ <select> dựa trên dữ liệu/kết quả tìm kiếm
 function renderTournamentSelect(list) {
   const selectEl = document.getElementById('tournament_select');
   selectEl.innerHTML = "";
-  
   const keys = Object.keys(list);
   if(keys.length === 0) {
     let option = document.createElement('option');
@@ -672,41 +672,26 @@ function renderTournamentSelect(list) {
     selectEl.appendChild(option);
     return;
   }
-
   keys.forEach(id => {
     let option = document.createElement('option');
     option.value = id;
     option.textContent = list[id];
     selectEl.appendChild(option);
   });
-
-  // Đồng bộ trạng thái chọn giải hiện tại nếu nó tồn tại trong danh sách đang hiển thị
-  if (keys.includes(currentTournamentId)) {
-    selectEl.value = currentTournamentId;
-  } else {
-    currentTournamentId = keys[0];
-    selectEl.value = currentTournamentId;
-  }
-  
+  if (keys.includes(currentTournamentId)) selectEl.value = currentTournamentId;
+  else { currentTournamentId = keys[0]; selectEl.value = currentTournamentId; }
   bindTournamentRealtime();
 }
 
-// 🔍 CHỨC NƠNG TÌM KIẾM GIẢI ĐẤU
 function filterTournaments() {
   const keyword = document.getElementById('tournament_search').value.trim().toLowerCase();
-  if (!keyword) {
-    renderTournamentSelect(globalTournamentsList);
-    return;
-  }
-
+  if (!keyword) { renderTournamentSelect(globalTournamentsList); return; }
   let filtered = {};
   Object.keys(globalTournamentsList).forEach(id => {
-    const name = globalTournamentsList[id].toLowerCase();
-    if (name.includes(keyword) || id.toLowerCase().includes(keyword)) {
+    if (globalTournamentsList[id].toLowerCase().includes(keyword) || id.toLowerCase().includes(keyword)) {
       filtered[id] = globalTournamentsList[id];
     }
   });
-
   renderTournamentSelect(filtered);
 }
 
@@ -714,78 +699,37 @@ function createNewTournament() {
   const nameIn = document.getElementById('new_tournament_name');
   const name = nameIn.value.trim();
   if(!name) { alert("Vui lòng nhập tên giải đấu!"); return; }
-  
   const tournamentPassword = prompt(`Nhập mật khẩu trọng tài thiết lập riêng cho giải [${name}]:`);
   if (tournamentPassword === null) return; 
   if (tournamentPassword.trim() === "") { alert("Mật khẩu giải đấu không được để trống!"); return; }
-
   const id = "giai_" + name.toLowerCase().replace(/[^a-z0-9]/g, "_").replace(/_+/g, "_") + "_" + Math.floor(Math.random()*1000);
-  
   db.ref('tournaments_list/' + id).set(name).then(() => {
-    db.ref('tournaments_data/' + id).set({
-      tournament_password: tournamentPassword.trim(),
-      scores: {},
-      team_names: {}
-    }).then(() => {
-      nameIn.value = "";
-      document.getElementById('tournament_search').value = ""; // Clear thanh tìm kiếm
-      switchTournament(id);
-      alert("Đã tạo giải đấu mới thành công!");
+    db.ref('tournaments_data/' + id).set({ tournament_password: tournamentPassword.trim(), scores: {}, team_names: {} }).then(() => {
+      nameIn.value = ""; document.getElementById('tournament_search').value = "";
+      switchTournament(id); alert("Đã tạo giải đấu mới thành công!");
     });
   });
 }
 
-// ❌ CHỨC NĂNG XÓA GIẢI ĐẤU (FIX TRIỆT ĐỂ LỖI KIỂM TRA MẬT KHẨU SHA-256)
-// ❌ CHỨC NĂNG XÓA GIẢI ĐẤU TOÀN DIỆN CỦA SUPER ADMIN (ĐÃ SỬA LỖI CHECK HASH)
 function deleteTournamentPermanently() {
   const selectEl = document.getElementById('tournament_select');
   const idToDelete = selectEl.value;
-  if (!idToDelete || idToDelete === "giai_mac_dinh") {
-    alert("Không thể xóa giải đấu mặc định hệ thống hoặc giải trống!");
-    return;
-  }
-
+  if (!idToDelete || idToDelete === "giai_mac_dinh") { alert("Không thể xóa giải đấu mặc định!"); return; }
   const nameTournament = globalTournamentsList[idToDelete] || idToDelete;
-  
-  // Xác nhận hành động xóa
-  if (!confirm(`⚠️ CẢNH BÁO: Bạn có chắc chắn muốn XÓA HOÀN TOÀN giải đấu [${nameTournament}]? Mọi điểm số và dữ liệu bốc thăm sẽ mất vĩnh viễn.`)) {
-    return;
-  }
-
-  // Yêu cầu nhập mật khẩu quyền lực tối cao
-  const inputSuperPass = prompt("Xác thực tối cao: Nhập MẬT KHẨU ADMIN TỐI CAO để thực hiện thao tác xóa này:");
+  if (!confirm(`⚠️ XÓA HOÀN TOÀN giải [${nameTournament}]?`)) return;
+  const inputSuperPass = prompt("Nhập MẬT KHẨU ADMIN TỐI CAO:");
   if (inputSuperPass === null) return;
-  
   const cleanInput = inputSuperPass.trim();
-  
-  // Thực hiện băm chuỗi vừa nhập sang SHA-256 để phòng trường hợp trên Firebase bạn lưu chuỗi đã mã hóa
   const inputHash = CryptoJS.SHA256(cleanInput).toString(CryptoJS.enc.Hex).toLowerCase();
-  
-  // Lấy giá trị chính xác từ Firebase về và xóa khoảng trắng dư thừa nếu có
   const fbAdminPass = superAdminPasswordFromFirebase ? superAdminPasswordFromFirebase.toString().trim() : "";
-
-  if (fbAdminPass === "") {
-    alert("❌ Hệ thống chưa tải xong cấu hình mật khẩu từ Firebase hoặc node trống! Vui lòng thử lại sau vài giây.");
-    return;
-  }
-
-  // ĐIỀU KIỆN THÔNG MINH: Khớp mật khẩu thô HOẶC khớp mã băm SHA-256 đều chấp nhận
-  if (cleanInput !== fbAdminPass && inputHash !== fbAdminPass) {
-    alert("❌ Sai mật khẩu Admin tối cao! Thao tác xóa bị từ chối.");
-    return;
-  }
-
-  // Thực hiện xóa đồng thời trên cả 2 node quản lý của Firebase
-  db.ref('tournaments_list/' + idToDelete).remove().then(() => {
-    db.ref('tournaments_data/' + idToDelete).remove().then(() => {
-      alert(`Đã xóa sạch dữ liệu giải đấu [${nameTournament}] thành công!`);
-      document.getElementById('tournament_search').value = ""; // Reset bộ lọc
-      currentTournamentId = "giai_mac_dinh"; // Đưa về giải mặc định
-    });
-  }).catch((error) => {
-    alert("Lỗi kết nối Firebase không thể xóa: " + error.message);
+  if (cleanInput !== fbAdminPass && inputHash !== fbAdminPass) { alert("❌ Sai mật khẩu Admin!"); return; }
+  db.ref('tournaments_list/' + idToDelete).remove();
+  db.ref('tournaments_data/' + idToDelete).remove().then(() => {
+    alert("Đã xóa giải thành công!");
+    currentTournamentId = "giai_mac_dinh";
   });
 }
+
 function switchTournament(id) {
   if(!id || id.startsWith("(")) return;
   currentTournamentId = id;
@@ -796,12 +740,9 @@ function switchTournament(id) {
 function bindTournamentRealtime() {
   if(!currentTournamentId || currentTournamentId.startsWith("(")) return;
   dbRef = db.ref('tournaments_data/' + currentTournamentId);
-  
   dbRef.on('value', (snapshot) => {
     const data = snapshot.val() || {};
-    
     currentTournamentPassword = data.tournament_password || "170397";
-    
     drawHistory = data.draw_history || {};
     const rawMembers = data.pool_members;
     poolMembers = Array.isArray(rawMembers) ? rawMembers : (rawMembers && typeof rawMembers === 'object' ? Object.values(rawMembers) : []);
@@ -812,7 +753,6 @@ function bindTournamentRealtime() {
       document.getElementById(`btn_draw_${i}`).disabled = false;
       document.getElementById(`draw_log_${i}`).innerHTML = `<span>Đội trưởng ${String.fromCharCode(64 + i)}:</span> <span style="font-weight:bold; color:var(--text3)">Chờ bấm...</span>`;
     }
-    
     Object.keys(drawHistory).forEach(k => {
       let d = drawHistory[k];
       if (document.getElementById(`btn_draw_${k}`)) {
@@ -825,24 +765,19 @@ function bindTournamentRealtime() {
     const names = data.team_names || {};
     nameIds.forEach(id => {
       const inputEl = document.getElementById(id);
-      if (inputEl && document.activeElement !== inputEl) {
-        inputEl.value = names[id] || "";
-      }
+      if (inputEl && document.activeElement !== inputEl) inputEl.value = names[id] || "";
     });
 
     const scores = data.scores || {};
     scoreIds.forEach(id => {
       const inputEl = document.getElementById(id);
-      if (inputEl && document.activeElement !== inputEl) {
-        inputEl.value = (scores[id] !== undefined && scores[id] !== "") ? scores[id] : "";
-      }
+      if (inputEl && document.activeElement !== inputEl) inputEl.value = (scores[id] !== undefined && scores[id] !== "") ? scores[id] : "";
     });
 
     updateNames();
   });
 }
 
-// ── 🎲 CƠ CHẾ BỐC THĂM ĐỒNG BỘ TRÊN NODE GIẢI ĐẤU ──
 function executeDraw(captainIndex) {
   if (_secretModeActive) { executeDrawSecret(captainIndex); return; }
   if (!Array.isArray(poolMembers)) poolMembers = [];
@@ -854,7 +789,6 @@ function executeDraw(captainIndex) {
     }
     poolTeams = [1, 2, 3, 4];
   }
-
   const captainName = document.getElementById(`cap_${captainIndex}`).value.trim() || `Đội Trưởng ${String.fromCharCode(64 + captainIndex)}`;
   const randMemIdx = Math.floor(Math.random() * poolMembers.length);
   const chosenMember = poolMembers.splice(randMemIdx, 1)[0];
@@ -862,16 +796,8 @@ function executeDraw(captainIndex) {
   const chosenTeamSlot = poolTeams.splice(randTeamIdx, 1)[0];
 
   drawHistory[captainIndex] = { captain: captainName, member: chosenMember, teamSlot: chosenTeamSlot };
-
-  dbRef.update({
-    draw_history: drawHistory,
-    pool_members: poolMembers,
-    pool_teams: poolTeams
-  });
-
-  if (Object.keys(drawHistory).length === 4) {
-    autoFillTournamentRows();
-  }
+  dbRef.update({ draw_history: drawHistory, pool_members: poolMembers, pool_teams: poolTeams });
+  if (Object.keys(drawHistory).length === 4) autoFillTournamentRows();
 }
 
 function autoFillTournamentRows() {
@@ -888,14 +814,11 @@ function autoFillTournamentRows() {
 }
 
 function resetDrawOnly() {
-  if(confirm("Reset riêng tiến trình bốc thăm của giải này?")) {
-    dbRef.child('draw_history').remove();
-    dbRef.child('pool_members').remove();
-    dbRef.child('pool_teams').remove();
+  if(confirm("Reset riêng tiến trình bốc thăm?")) {
+    dbRef.child('draw_history').remove(); dbRef.child('pool_members').remove(); dbRef.child('pool_teams').remove();
   }
 }
 
-// ── 📈 CƠ CHẾ ĐIỀU KHIỂN ĐIỂM SỐ & CHECK MẬT KHẨU LINH HOẠT ──
 function getRivalId(id) {
   const pairs = [
     ['s_l1_1','s_l1_2'], ['s_l2_3','s_l2_4'], ['s_l3_1','s_l3_2'], ['s_l4_3','s_l4_4'],
@@ -903,59 +826,45 @@ function getRivalId(id) {
     ['s_l9_lost1','s_l9_lost2'], ['s_l10_win1','s_l10_win2'], ['s_l11_lost1','s_l11_lost2'], ['s_l12_win1','s_l12_win2']
   ];
   for (let pair of pairs) {
-    if (pair[0] === id) return pair[1];
-    if (pair[1] === id) return pair[0];
+    if (pair[0] === id) return pair[1]; if (pair[1] === id) return pair[0];
   }
   return null;
 }
 
 function getMatchRules(id) {
   const parts = id.split('_');
-  const matchKey = parts[1];
-  if (['l1', 'l2', 'l3', 'l4', 'l5', 'l6'].includes(matchKey)) return { targetWin: 15, maxCeiling: 17 };
+  if (['l1', 'l2', 'l3', 'l4', 'l5', 'l6'].includes(parts[1])) return { targetWin: 15, maxCeiling: 17 };
   return { targetWin: 21, maxCeiling: 25 };
 }
 
 function step(id, amount) {
   const pass = document.getElementById('admin_pass').value;
-  if (!checkPermission(pass)) { alert("Sai mật khẩu trọng tài hoặc Admin tối cao!"); return; }
-  
+  if (!checkPermission(pass)) { alert("Sai mật khẩu!"); return; }
   const el = document.getElementById(id);
   let current = parseInt(el.value) || 0;
   let newValue = current + amount;
   if (newValue < 0) return;
-
   const rules = getMatchRules(id);
   if (newValue > rules.maxCeiling) return;
 
   if (amount > 0) {
     const rivalId = getRivalId(id);
     let rivalVal = parseInt(document.getElementById(rivalId).value) || 0;
-    let isSetFinished = false;
-    if ((current >= rules.targetWin && current - rivalVal >= 2) || current === rules.maxCeiling) isSetFinished = true;
-    if ((rivalVal >= rules.targetWin && rivalVal - current >= 2) || rivalVal === rules.maxCeiling) isSetFinished = true;
-    if (isSetFinished) { alert("Set đấu đã hoàn thành trước đó!"); return; }
+    if ((current >= rules.targetWin && current - rivalVal >= 2) || current === rules.maxCeiling || (rivalVal >= rules.targetWin && rivalVal - current >= 2) || rivalVal === rules.maxCeiling) {
+      alert("Set đấu đã kết thúc!"); return;
+    }
   }
-
-  el.value = newValue;
-  calcAll();
-  dbRef.child('scores').child(id).set(newValue);
+  el.value = newValue; calcAll(); dbRef.child('scores').child(id).set(newValue);
 }
 
 function handleInputManual(id) {
   const pass = document.getElementById('admin_pass').value;
-  if (!checkPermission(pass)) { alert("Bạn không có quyền chỉnh sửa!"); bindTournamentRealtime(); return; }
-
+  if (!checkPermission(pass)) { alert("Bạn không có quyền!"); bindTournamentRealtime(); return; }
   const el = document.getElementById(id);
-  let val = parseInt(el.value);
-  if (isNaN(val) || val < 0) val = 0;
-
+  let val = parseInt(el.value); if (isNaN(val) || val < 0) val = 0;
   const rules = getMatchRules(id);
   if (val > rules.maxCeiling) val = rules.maxCeiling;
-  el.value = val;
-
-  calcAll();
-
+  el.value = val; calcAll();
   let allScores = {};
   scoreIds.forEach(sid => {
     let v = parseInt(document.getElementById(sid).value);
@@ -974,13 +883,11 @@ function getTeamName(num) {
 function saveAndResetNames() {
   let namesObj = {};
   nameIds.forEach(id => { namesObj[id] = document.getElementById(id).value; });
-  dbRef.child('team_names').update(namesObj);
-  updateNames();
+  dbRef.child('team_names').update(namesObj); updateNames();
 }
 
 function updateNames() {
-  const n1 = getTeamName(1), n2 = getTeamName(2);
-  const n3 = getTeamName(3), n4 = getTeamName(4);
+  const n1 = getTeamName(1), n2 = getTeamName(2), n3 = getTeamName(3), n4 = getTeamName(4);
   if(document.getElementById('lbl_l1_t1')) {
     document.getElementById('lbl_l1_t1').textContent = n1; document.getElementById('lbl_l1_t2').textContent = n2;
     document.getElementById('lbl_l2_t3').textContent = n3; document.getElementById('lbl_l2_t4').textContent = n4;
@@ -993,14 +900,12 @@ function updateNames() {
 }
 
 function parseScore(id) {
-  const val = parseInt(document.getElementById(id).value);
-  return isNaN(val) ? null : val;
+  const val = parseInt(document.getElementById(id).value); return isNaN(val) ? null : val;
 }
 
 function styleInputPair(id1, id2) {
   const v1 = parseScore(id1), v2 = parseScore(id2);
-  const step1 = document.getElementById('step_' + id1);
-  const step2 = document.getElementById('step_' + id2);
+  const step1 = document.getElementById('step_' + id1), step2 = document.getElementById('step_' + id2);
   if(!step1 || !step2) return;
   if(v1 === null || v2 === null) { step1.className = 'score-stepper'; step2.className = 'score-stepper'; return; }
   if (v1 > v2) { step1.className = 'score-stepper win-style'; step2.className = 'score-stepper lose-style'; }
@@ -1026,7 +931,6 @@ function calcAll() {
   ];
   pairs.forEach(p => styleInputPair(p[0], p[1]));
 
-  // TÍNH BÁN KẾT 1
   let bk1_1 = 0, bk1_2 = 0;
   let w_s1 = isSetWon('s_l1_1', 's_l1_2'), w_s3 = isSetWon('s_l3_1', 's_l3_2');
   if (w_s1 === 1) bk1_1++; else if (w_s1 === 2) bk1_2++;
@@ -1041,7 +945,6 @@ function calcAll() {
   if(bk1_1 >= 2) { winBK1 = getTeamName(1); lostBK1 = getTeamName(2); }
   else if(bk1_2 >= 2) { winBK1 = getTeamName(2); lostBK1 = getTeamName(1); }
 
-  // TÍNH BÁN KẾT 2
   let bk2_3 = 0, bk2_4 = 0;
   let w_s2 = isSetWon('s_l2_3', 's_l2_4'), w_s4 = isSetWon('s_l4_3', 's_l4_4');
   if (w_s2 === 1) bk2_3++; else if (w_s2 === 2) bk2_4++;
@@ -1063,7 +966,6 @@ function calcAll() {
   ['l8_win1','l10_win1','l12_win1'].forEach(id => document.getElementById(`lbl_${id}`).textContent = lb_w1);
   ['l8_win2','l10_win2','l12_win2'].forEach(id => document.getElementById(`lbl_${id}`).textContent = lb_w2);
 
-  // TÍNH TRANH HẠNG BA
   let tb_1 = 0, tb_2 = 0;
   if(lostBK1 && lostBK2) {
     let w_s7 = isSetWon('s_l7_lost1', 's_l7_lost2'), w_s9 = isSetWon('s_l9_lost1', 's_l9_lost2');
@@ -1075,9 +977,8 @@ function calcAll() {
       let w_s11 = isSetWon('s_l11_lost1', 's_l11_lost2');
       if (w_s11 === 1) tb_1++; else if (w_s11 === 2) tb_2++;
     }
-  } else { document.getElementById('row_l11').classList.remove('show'); }
+  } else document.getElementById('row_l11').classList.remove('show');
 
-  // TÍNH CHUNG KẾT
   let ck_1 = 0, ck_2 = 0;
   if(winBK1 && winBK2) {
     let w_s8 = isSetWon('s_l8_win1', 's_l8_win2'), w_s10 = isSetWon('s_l10_win1', 's_l10_win2');
@@ -1089,7 +990,7 @@ function calcAll() {
       let w_s12 = isSetWon('s_l12_win1', 's_l12_win2');
       if (w_s12 === 1) ck_1++; else if (w_s12 === 2) ck_2++;
     }
-  } else { document.getElementById('row_l12').classList.remove('show'); }
+  } else document.getElementById('row_l12').classList.remove('show');
 
   if(ck_1 >= 2) { document.getElementById('f_1st').textContent = lb_w1; document.getElementById('f_2nd').textContent = lb_w2; }
   else if(ck_2 >= 2) { document.getElementById('f_1st').textContent = lb_w2; document.getElementById('f_2nd').textContent = lb_w1; }
@@ -1101,25 +1002,188 @@ function calcAll() {
 }
 
 function clearTournament() {
-  if (confirm("Xóa sạch toàn bộ dữ liệu (Bốc thăm, Đội, Điểm) của riêng giải đấu này?")) {
-    dbRef.remove();
+  if (confirm("Xóa toàn bộ dữ liệu giải này?")) dbRef.remove();
+}
+
+// ── 👑 LOGIC DÀNH RIÊNG CHO PAGE KING 11 NGƯỜI ──
+var k11Players = [];
+var k11Matches = [];
+
+function renderKing11InputInputs() {
+  const container = document.getElementById('k11-player-inputs');
+  container.innerHTML = "";
+  for(let i=1; i<=11; i++) {
+    const defaultName = `VĐV ${i}`;
+    container.innerHTML += `
+      <div class="k11-input-item">
+        <label>VĐV ${i}</label>
+        <input type="text" id="k11_p_${i}" value="${defaultName}" onchange="saveKing11Players()">
+      </div>
+    `;
   }
 }
 
-// 🛫 KHỞI ĐỘNG HỆ THỐNG
+function saveKing11Players() {
+  let names = [];
+  for(let i=1; i<=11; i++) {
+    let val = document.getElementById(`k11_p_${i}`).value.trim();
+    names.push(val || `VĐV ${i}`);
+  }
+  db.ref('king11_data/players').set(names);
+}
+
+function initKing11System() {
+  if(!confirm("Xác nhận tạo mới hoặc reset toàn bộ giải King 11 người?")) return;
+  saveKing11Players();
+  
+  // Thuật toán xoay vòng ghép cặp tự động ưu tiên số trận ít nhất
+  k11Matches = generateKing11Matches();
+  db.ref('king11_data/matches').set(k11Matches);
+}
+
+function generateKing11Matches() {
+  let matches = [];
+  let playCounts = Array(11).fill(0);
+  let totalMatches = 11; // Mỗi người đánh 4 trận -> Tổng số trận = 11 * 4 / 4 = 11 trận
+
+  for(let m=1; m<=totalMatches; m++) {
+    // Sắp xếp các chỉ số VĐV ưu tiên người chơi ít trận nhất
+    let indices = [0,1,2,3,4,5,6,7,8,9,10].sort((a,b) => playCounts[a] - playCounts[b]);
+    
+    // Lấy 4 VĐV ít trận nhất
+    let chosen = indices.slice(0, 4);
+    
+    // Cập nhật số trận đã tham gia
+    chosen.forEach(idx => playCounts[idx]++);
+
+    matches.push({
+      id: m,
+      teamA: [chosen[0], chosen[1]],
+      teamB: [chosen[2], chosen[3]],
+      scoreA: "",
+      scoreB: ""
+    });
+  }
+  return matches;
+}
+
+function bindKing11Realtime() {
+  db.ref('king11_data').on('value', (snapshot) => {
+    const data = snapshot.val() || {};
+    k11Players = data.players || Array.from({length: 11}, (_, i) => `VĐV ${i+1}`);
+    k11Matches = data.matches || [];
+
+    // Cập nhật tên vào input
+    k11Players.forEach((pName, idx) => {
+      let el = document.getElementById(`k11_p_${idx+1}`);
+      if(el && document.activeElement !== el) el.value = pName;
+    });
+
+    renderKing11Schedule();
+    calcKing11Leaderboard();
+  });
+}
+
+function renderKing11Schedule() {
+  const tbody = document.getElementById('k11-schedule-body');
+  tbody.innerHTML = "";
+
+  if(k11Matches.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4">Bấm "Khởi Tạo / Reset" để sinh lịch thi đấu.</td></tr>`;
+    return;
+  }
+
+  k11Matches.forEach((m, idx) => {
+    const nameA1 = k11Players[m.teamA[0]] || `VĐV ${m.teamA[0]+1}`;
+    const nameA2 = k11Players[m.teamA[1]] || `VĐV ${m.teamA[1]+1}`;
+    const nameB1 = k11Players[m.teamB[0]] || `VĐV ${m.teamB[0]+1}`;
+    const nameB2 = k11Players[m.teamB[1]] || `VĐV ${m.teamB[1]+1}`;
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${m.id}</td>
+        <td class="cell-left"><span class="player-display">${nameA1} + ${nameA2}</span></td>
+        <td>
+          <div class="score-stepper-container">
+            <input type="number" id="k11_sA_${idx}" class="score-in" style="width:40px;" value="${m.scoreA}" placeholder="0">
+            <span class="score-colon">:</span>
+            <input type="number" id="k11_sB_${idx}" class="score-in" style="width:40px;" value="${m.scoreB}" placeholder="0">
+            <button class="btn-create" style="margin-left:6px; padding:4px 8px;" onclick="saveKing11Score(${idx})">💾 Lưu Tỉ Số</button>
+          </div>
+        </td>
+        <td class="cell-left"><span class="player-display">${nameB1} + ${nameB2}</span></td>
+      </tr>
+    `;
+  });
+}
+
+function saveKing11Score(matchIndex) {
+  const pass = document.getElementById('admin_pass').value;
+  if (!checkPermission(pass)) { alert("Cần nhập đúng mật khẩu trọng tài/admin!"); return; }
+
+  let sA = document.getElementById(`k11_sA_${matchIndex}`).value;
+  let sB = document.getElementById(`k11_sB_${matchIndex}`).value;
+
+  db.ref(`king11_data/matches/${matchIndex}`).update({
+    scoreA: sA !== "" ? parseInt(sA) : "",
+    scoreB: sB !== "" ? parseInt(sB) : ""
+  });
+}
+
+function calcKing11Leaderboard() {
+  let stats = k11Players.map((name, idx) => ({
+    id: idx,
+    name: name,
+    played: 0,
+    won: 0,
+    diff: 0
+  }));
+
+  k11Matches.forEach(m => {
+    if(m.scoreA !== "" && m.scoreB !== "" && !isNaN(m.scoreA) && !isNaN(m.scoreB)) {
+      let sa = parseInt(m.scoreA);
+      let sb = parseInt(m.scoreB);
+
+      // Đội A
+      m.teamA.forEach(pIdx => {
+        stats[pIdx].played++;
+        stats[pIdx].diff += (sa - sb);
+        if(sa > sb) stats[pIdx].won++;
+      });
+
+      // Đội B
+      m.teamB.forEach(pIdx => {
+        stats[pIdx].played++;
+        stats[pIdx].diff += (sb - sa);
+        if(sb > sa) stats[pIdx].won++;
+      });
+    }
+  });
+
+  // Xếp hạng theo: Số trận thắng -> Hiệu số
+  stats.sort((a,b) => (b.won - a.won) || (b.diff - a.diff));
+
+  const tbody = document.getElementById('k11-leaderboard-body');
+  tbody.innerHTML = "";
+  stats.forEach((st, rank) => {
+    let medal = rank === 0 ? "🥇 " : (rank === 1 ? "🥈 " : (rank === 2 ? "🥉 " : `${rank+1}. `));
+    tbody.innerHTML += `
+      <tr>
+        <td style="font-weight:bold">${medal}</td>
+        <td class="cell-left" style="font-weight:700">${st.name}</td>
+        <td>${st.played}</td>
+        <td style="color:var(--green); font-weight:bold">${st.won}</td>
+        <td style="font-weight:bold; color:${st.diff >= 0 ? 'var(--green)' : 'var(--red)'}">${st.diff > 0 ? '+' + st.diff : st.diff}</td>
+      </tr>
+    `;
+  });
+}
+
+// ── 🛫 KHỞI ĐỘNG HỆ THỐNG ──
 initTournamentSystem();
-</script>
-</div><!-- end page-main -->
+renderKing11InputInputs();
+bindKing11Realtime();
 
-<div id="page-dongdoi" class="page-view">
-  <iframe class="iframe-view" src="giai-dong-doi.html" id="iframe-dongdoi"></iframe>
-</div>
-
-<div id="page-mini" class="page-view">
-  <iframe class="iframe-view" src="giai-mini.html" id="iframe-mini"></iframe>
-</div>
-
-<script>
 function switchPage(name) {
   document.querySelectorAll('.page-view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));

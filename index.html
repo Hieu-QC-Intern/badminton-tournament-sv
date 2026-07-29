@@ -282,6 +282,7 @@ body {
     </div>
   </div>
 </div>
+  
 
 <div id="password-section" style="display: none;">
     <label for="admin_pass" style="font-weight: bold; margin-right: 10px;">🔑 Mật khẩu trọng tài:</label>
@@ -477,6 +478,11 @@ body {
       <button class="btn-action-danger" onclick="createNewKing11Schedule()">🔄 Tạo Mới / Reset Lịch Thi Đấu</button>
     </div>
   </div>
+<!-- Thêm ngay dưới <div class="setup-box"> của King 11 -->
+<div id="k11-password-section" class="setup-box" style="margin-top: 12px; text-align: center; border: 2px solid #0ea5e9;">
+  <label for="k11_admin_pass" style="font-weight: bold; margin-right: 10px;">🔑 Mật khẩu trọng tài (King 11):</label>
+  <input type="password" id="k11_admin_pass" placeholder="Nhập mật khẩu..." style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-weight: bold; width: 180px;">
+</div>  
 
   <div class="schedule-box">
     <div class="section-title">📅 Lịch Thi Đấu Xoay Vòng (Ưu Tiên Đều Trận & Đúng Loại Ghép Cặp)</div>
@@ -1043,8 +1049,12 @@ function saveKing11Players() {
   });
 }
 
+// 🔄 Cập nhật lại hàm Tạo Mới / Reset Lịch
 function createNewKing11Schedule() {
-  if(!confirm("⚠️ Bạn có chắc chắn muốn TẠO MỚI/RESET toàn bộ lịch thi đấu & tỷ số King 11 người?")) return;
+  const pass = getKing11Password();
+  if (!pass) return;
+
+  if (!confirm("⚠️ Bạn có chắc chắn muốn TẠO MỚI/RESET toàn bộ lịch thi đấu & tỷ số King 11 người?")) return;
   let names = getInputsKing11Players();
   k11Matches = generateKing11Matches();
   
@@ -1219,10 +1229,29 @@ function renderKing11Schedule() {
     `;
   });
 }
+// 🔑 Hàm kiểm tra & Trigger mật khẩu cho King 11
+function getKing11Password() {
+  let passInput = document.getElementById('k11_admin_pass') || document.getElementById('admin_pass');
+  let pass = passInput ? passInput.value.trim() : "";
 
+  // Nếu mật khẩu chưa nhập hoặc nhập sai -> Hiện prompt hỏi ngay lập tức
+  if (!checkPermission(pass)) {
+    let inputPass = prompt("🔑 Nhập mật khẩu trọng tài King 11:");
+    if (inputPass !== null && checkPermission(inputPass)) {
+      pass = inputPass.trim();
+      if (passInput) passInput.value = pass; // Điền tự động vào ô cho các lần sau
+    } else {
+      if (inputPass !== null) alert("❌ Mật khẩu không đúng!");
+      return null;
+    }
+  }
+  return pass;
+}
+  
+// 💾 Cập nhật lại hàm Lưu Điểm
 function saveKing11Score(matchIndex) {
-  const pass = document.getElementById('admin_pass').value;
-  if (!checkPermission(pass)) { alert("Cần nhập đúng mật khẩu trọng tài/admin!"); return; }
+  const pass = getKing11Password();
+  if (!pass) return; // Dừng lại nếu mật khẩu sai/chưa nhập
 
   let sA = document.getElementById(`k11_sA_${matchIndex}`).value;
   let sB = document.getElementById(`k11_sB_${matchIndex}`).value;
@@ -1231,7 +1260,7 @@ function saveKing11Score(matchIndex) {
     scoreA: sA !== "" ? parseInt(sA) : "",
     scoreB: sB !== "" ? parseInt(sB) : ""
   }).then(() => {
-    alert(`Đã lưu tỷ số Trận ${matchIndex + 1}!`);
+    alert(`✅ Đã lưu tỷ số Trận ${matchIndex + 1}!`);
   });
 }
 

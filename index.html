@@ -1070,8 +1070,7 @@ function createNewKing11Schedule() {
 function generateKing11Matches() {
   let rawMatches = [];
 
-  // 1. Sinh danh sách các tổ hợp cặp đấu
-  // A+B vs A+B
+  // 1. Chỉ sinh các trận A+B vs A+B
   for (let a1 = 0; a1 < 6; a1++) {
     for (let a2 = a1 + 1; a2 < 6; a2++) {
       for (let b1 = 6; b1 < 11; b1++) {
@@ -1086,38 +1085,17 @@ function generateKing11Matches() {
     }
   }
 
-  // A+A vs A+A
-  for (let i = 0; i < 6; i++) {
-    for (let j = i + 1; j < 6; j++) {
-      for (let k = j + 1; k < 6; k++) {
-        for (let l = k + 1; l < 6; l++) {
-          rawMatches.push({ matchType: 'A+A VS A+A', teamA: [i, j], teamB: [k, l] });
-        }
-      }
-    }
-  }
-
-  // B+B vs B+B
-  for (let i = 6; i < 11; i++) {
-    for (let j = i + 1; j < 11; j++) {
-      for (let k = j + 1; k < 11; k++) {
-        for (let l = k + 1; l < 11; l++) {
-          rawMatches.push({ matchType: 'B+B VS B+B', teamA: [i, j], teamB: [k, l] });
-        }
-      }
-    }
-  }
-
-  // 🎲 Trộn ngẫu nhiên danh sách trận
+  // 🎲 Trộn ngẫu nhiên
   rawMatches.sort(() => Math.random() - 0.5);
 
-  // ⚙️ GIỚI HẠN DÙNG CHO SÂN 1 (2 TIẾNG) + SÂN 2 (1 TIẾNG) -> TỔNG 12 TRẬN
-  const MAX_MATCHES = 12; 
+  // ⚙️ ĐẶT ĐÚNG 11 TRẬN ĐỂ TẤT CẢ 11 NGƯỜI ĐÁNH ĐÚNG 4 TRẬN BẰNG NHAU
+  const MAX_MATCHES = 11; 
 
   let scheduled = [];
   let lastPlayed = Array(11).fill(-99);
+  let playCount = Array(11).fill(0); 
 
-  // 2. Tối ưu phân bổ lịch đấu
+  // 2. Thuật toán ưu tiên cân bằng tuyệt đối lượt đấu
   while (rawMatches.length > 0 && scheduled.length < MAX_MATCHES) {
     let bestIndex = -1;
     let bestScore = -Infinity;
@@ -1130,11 +1108,14 @@ function generateKing11Matches() {
       let restTimes = players.map(p => currentIdx - lastPlayed[p] - 1);
       let minRest = Math.min(...restTimes);
       let avgRest = restTimes.reduce((a, b) => a + b, 0) / 4;
+      let maxPlayed = Math.max(...players.map(p => playCount[p]));
 
       let score = 0;
-      if (minRest === 0) score -= 5000; // Tránh 2 trận liên tiếp
-      if (minRest === 1) score -= 500;  // Tránh nghỉ chỉ 1 trận
-      score += avgRest * 50;            // Ưu tiên người chờ lâu ra sân
+      if (minRest === 0) score -= 5000; // Tránh dính 2 trận liên tiếp
+      if (minRest === 1) score -= 500;  // Hạn chế nghỉ 1 trận
+      
+      score += avgRest * 40;
+      score -= maxPlayed * 2000;         // Ép cực mạnh: Ai chạm trần 4 trận sẽ nhường người khác
       score += Math.random() * 5;
 
       if (score > bestScore) {
@@ -1148,6 +1129,7 @@ function generateKing11Matches() {
 
     [chosen.teamA[0], chosen.teamA[1], chosen.teamB[0], chosen.teamB[1]].forEach(p => {
       lastPlayed[p] = currentIdx;
+      playCount[p]++;
     });
 
     scheduled.push({

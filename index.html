@@ -1168,10 +1168,11 @@ function createNewKing11Schedule() {
 }
 
 // ── 👑 THUẬT TOÁN GHÉP CẶP FLEXIBLE CHO KING 11 ──
+// ── 👑 THUẬT TOÁN GHÉP CẶP CHUẨN ĐỀU 4 TRẬN CHO KING 11 ──
 function generateKing11Matches() {
   let rawMatches = [];
 
-  // 1. Chỉ sinh các trận A+B vs A+B
+  // 1. Sinh các trận A+B vs A+B
   for (let a1 = 0; a1 < 6; a1++) {
     for (let a2 = a1 + 1; a2 < 6; a2++) {
       for (let b1 = 6; b1 < 11; b1++) {
@@ -1186,17 +1187,13 @@ function generateKing11Matches() {
     }
   }
 
-  // 🎲 Trộn ngẫu nhiên
-  rawMatches.sort(() => Math.random() - 0.5);
-
-  // ⚙️ ĐẶT ĐÚNG 11 TRẬN ĐỂ TẤT CẢ 11 NGƯỜI ĐÁNH ĐÚNG 4 TRẬN BẰNG NHAU
-  const MAX_MATCHES = 11; 
+  const MAX_MATCHES = 11;
+  const MAX_PLAY_PER_PERSON = 4; // Bắt buộc mỗi người tối đa 4 trận
 
   let scheduled = [];
   let lastPlayed = Array(11).fill(-99);
-  let playCount = Array(11).fill(0); 
+  let playCount = Array(11).fill(0);
 
-  // 2. Thuật toán ưu tiên cân bằng tuyệt đối lượt đấu
   while (rawMatches.length > 0 && scheduled.length < MAX_MATCHES) {
     let bestIndex = -1;
     let bestScore = -Infinity;
@@ -1204,25 +1201,37 @@ function generateKing11Matches() {
     for (let idx = 0; idx < rawMatches.length; idx++) {
       let m = rawMatches[idx];
       let players = [m.teamA[0], m.teamA[1], m.teamB[0], m.teamB[1]];
-      let currentIdx = scheduled.length;
 
+      // RÀO CẢN CỨNG: Bỏ qua nếu có bất kỳ VĐV nào trong trận đã đánh đủ 4 trận
+      if (players.some(p => playCount[p] >= MAX_PLAY_PER_PERSON)) {
+        continue;
+      }
+
+      let currentIdx = scheduled.length;
       let restTimes = players.map(p => currentIdx - lastPlayed[p] - 1);
       let minRest = Math.min(...restTimes);
       let avgRest = restTimes.reduce((a, b) => a + b, 0) / 4;
-      let maxPlayed = Math.max(...players.map(p => playCount[p]));
 
       let score = 0;
-      if (minRest === 0) score -= 5000; // Tránh dính 2 trận liên tiếp
-      if (minRest === 1) score -= 500;  // Hạn chế nghỉ 1 trận
-      
-      score += avgRest * 40;
-      score -= maxPlayed * 2000;         // Ép cực mạnh: Ai chạm trần 4 trận sẽ nhường người khác
-      score += Math.random() * 5;
+      if (minRest === 0) score -= 5000; // Hạn chế tối đa đánh 2 trận liên tiếp
+      if (minRest === 1) score -= 300;  // Giảm bớt tần suất nghỉ chỉ 1 trận
+
+      score += avgRest * 50;
+      // Ưu tiên xếp các VĐV đang có số trận ít hơn
+      let totalPlayed = players.reduce((sum, p) => sum + playCount[p], 0);
+      score -= totalPlayed * 100;
+      score += Math.random() * 10;
 
       if (score > bestScore) {
         bestScore = score;
         bestIndex = idx;
       }
+    }
+
+    // Nếu không tìm thấy trận thỏa mãn (do vướng rào cản), xáo trộn lại pool và thử lại
+    if (bestIndex === -1) {
+      rawMatches.sort(() => Math.random() - 0.5);
+      continue;
     }
 
     let chosen = rawMatches.splice(bestIndex, 1)[0];

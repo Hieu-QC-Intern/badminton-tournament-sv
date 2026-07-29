@@ -246,7 +246,36 @@ body {
     padding: 0 !important;
   }
 }
+ /* ── BẢNG XẾP HẠNG KING 11 GỌN ĐẸP TRÊN MOBILE ── */
+#king11-leaderboard-container table,
+.king11-table {
+  width: 100% !important;
+  border-collapse: collapse !important;
 }
+
+/* Ép từng hàng trong bảng gọn gàng */
+#king11-leaderboard-container tr,
+.king11-table tr {
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+/* Ép các ô td nằm trên 1 hàng ngang chuẩn */
+#king11-leaderboard-container td,
+.king11-table td {
+  padding: 8px 6px !important;
+  vertical-align: middle !important;
+  white-space: nowrap !important;
+  font-size: 13px !important;
+}
+
+/* Đảm bảo ô tên VĐV dãn ra hợp lý */
+#king11-leaderboard-container td:nth-child(2),
+.king11-table td:nth-child(2) {
+  width: 100% !important;
+  font-weight: bold !important;
+  font-size: 14px !important;
+}
+
 </style>
 </head>
 <body>

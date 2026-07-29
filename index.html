@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">  
 <title>Hệ Thống Đa Giải Đấu Cầu Lông Pro</title>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -175,6 +176,59 @@ body {
   .sched-table td:nth-child(3) { display: inline-block; font-size: 0.75rem; color: var(--text2); font-weight: bold; }
   .sched-table td:nth-child(4), .sched-table td:nth-child(6) { display: block; width: 100%; padding: 6px 4px; background: #fff; border-radius: 6px; margin: 4px 0; border: 1px dashed var(--border); padding-left: 8px !important; }
   .sched-table td:nth-child(5) { display: flex; justify-content: center; padding: 8px 0; }
+
+
+/* ==========================================
+     📱 MOBILE RESPONSIVE OPTIMIZATION
+     ========================================== */
+  @media (max-width: 768px) {
+    /* 1. Tối ưu Table Lịch Thi Đấu & BXH */
+    table {
+      width: 100% !important;
+      font-size: 0.85rem !important;
+    }
+
+    th, td {
+      padding: 8px 3px !important;
+    }
+
+    /* 2. Tối ưu Ô Nhập Điểm */
+    .score-stepper-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+    }
+
+    .score-in {
+      width: 36px !important;
+      height: 32px !important;
+      text-align: center;
+      padding: 0 !important;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    /* 3. Tối ưu Nút Lưu */
+    .btn-create {
+      padding: 5px 8px !important;
+      font-size: 0.75rem !important;
+      white-space: nowrap;
+    }
+
+    /* 4. Tối ưu Hiển thị Tên VĐV */
+    .player-display {
+      display: inline-block;
+      word-break: break-word;
+      line-height: 1.3;
+    }
+
+    /* 5. Tối ưu Label loại trận */
+    .match-label {
+      font-size: 0.55rem !important;
+      padding: 1px 3px !important;
+    }
+  }  
 }
 </style>
 </head>

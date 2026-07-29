@@ -1170,38 +1170,74 @@ function createNewKing11Schedule() {
 // ── 👑 THUẬT TOÁN GHÉP CẶP FLEXIBLE CHO KING 11 ──
 // ── 👑 THUẬT TOÁN GHÉP CẶP CHUẨN ĐỀU 4 TRẬN CHO KING 11 ──
 // ── 👑 THUẬT TOÁN GHÉP CẶP CHUẨN 100% MỖI NGƯỜI 4 TRẬN & KHÔNG BAO GIỜ LẮP / TREO ──
+// ── 👑 THUẬT TOÁN KING 11 FLEXIBLE (ĐẢM BẢO MỖI NGƯỜI ĐÚNG 4 TRẬN & KHÔNG TREO PAGE) ──
 function generateKing11Matches() {
-  let allPossibleMatches = [];
+  const TOTAL_MATCHES = 11;
+  const TARGET_PLAY_PER_PERSON = 4;
+  const MAX_ATTEMPTS = 200; // Số lần thử lại tối đa nếu gặp ngõ tống (chạy mất < 5ms)
 
-  // 1. Sinh toàn bộ các trận hợp lệ A+B vs A+B
-  for (let a1 = 0; a1 < 6; a1++) {
-    for (let a2 = a1 + 1; a2 < 6; a2++) {
-      for (let b1 = 6; b1 < 11; b1++) {
-        for (let b2 = b1 + 1; b2 < 11; b2++) {
-          if ((a1 + b1) % 2 === 0) {
-            allPossibleMatches.push({ matchType: 'A+B VS A+B', teamA: [a1, b1], teamB: [a2, b2] });
-          } else {
-            allPossibleMatches.push({ matchType: 'A+B VS A+B', teamA: [a1, b2], teamB: [a2, b1] });
+  // 1. Hàm khởi tạo danh sách tất cả các trận đấu có thể có (AB vs AB, AA vs AA, BB vs BB)
+  function buildAllPossibleMatches() {
+    let matches = [];
+
+    // --- Kiểu 1: A+B VS A+B ---
+    for (let a1 = 0; a1 < 6; a1++) {
+      for (let a2 = a1 + 1; a2 < 6; a2++) {
+        for (let b1 = 6; b1 < 11; b1++) {
+          for (let b2 = b1 + 1; b2 < 11; b2++) {
+            if ((a1 + b1) % 2 === 0) {
+              matches.push({ matchType: 'A+B VS A+B', teamA: [a1, b1], teamB: [a2, b2] });
+            } else {
+              matches.push({ matchType: 'A+B VS A+B', teamA: [a1, b2], teamB: [a2, b1] });
+            }
           }
         }
       }
     }
+
+    // --- Kiểu 2: A+A VS A+A (4 người nhóm A: 0..5) ---
+    for (let a1 = 0; a1 < 6; a1++) {
+      for (let a2 = a1 + 1; a2 < 6; a2++) {
+        for (let a3 = a2 + 1; a3 < 6; a3++) {
+          for (let a4 = a3 + 1; a4 < 6; a4++) {
+            matches.push({ matchType: 'A+A VS A+A', teamA: [a1, a4], teamB: [a2, a3] });
+            matches.push({ matchType: 'A+A VS A+A', teamA: [a1, a3], teamB: [a2, a4] });
+            matches.push({ matchType: 'A+A VS A+A', teamA: [a1, a2], teamB: [a3, a4] });
+          }
+        }
+      }
+    }
+
+    // --- Kiểu 3: B+B VS B+B (4 người nhóm B: 6..10) ---
+    for (let b1 = 6; b1 < 11; b1++) {
+      for (let b2 = b1 + 1; b2 < 11; b2++) {
+        for (let b3 = b2 + 1; b3 < 11; b3++) {
+          for (let b4 = b3 + 1; b4 < 11; b4++) {
+            matches.push({ matchType: 'B+B VS B+B', teamA: [b1, b4], teamB: [b2, b3] });
+            matches.push({ matchType: 'B+B VS B+B', teamA: [b1, b3], teamB: [b2, b4] });
+            matches.push({ matchType: 'B+B VS B+B', teamA: [b1, b2], teamB: [b3, b4] });
+          }
+        }
+      }
+    }
+
+    return matches;
   }
 
-  const MAX_MATCHES = 11;
-  const MAX_ATTEMPTS = 500; // Giới hạn số lần thử lại nếu gặp ngõ tống
+  const allPossibleMatches = buildAllPossibleMatches();
 
+  // 2. Thử ghép lịch ngẫu nhiên
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     let rawMatches = [...allPossibleMatches];
-    // Trộn ngẫu nhiên danh sách trận
+    // Trộn ngẫu nhiên danh sách trận đấu
     rawMatches.sort(() => Math.random() - 0.5);
 
     let scheduled = [];
-    let lastPlayed = Array(11).fill(-99);
     let playCount = Array(11).fill(0);
+    let lastPlayed = Array(11).fill(-99);
     let isStuck = false;
 
-    while (scheduled.length < MAX_MATCHES) {
+    while (scheduled.length < TOTAL_MATCHES) {
       let bestIndex = -1;
       let bestScore = -Infinity;
 
@@ -1209,8 +1245,10 @@ function generateKing11Matches() {
         let m = rawMatches[idx];
         let players = [m.teamA[0], m.teamA[1], m.teamB[0], m.teamB[1]];
 
-        // ĐIỀU KIỆN CỨNG: Tuyệt đối không xếp VĐV đã đủ 4 trận
-        if (players.some(p => playCount[p] >= 4)) continue;
+        // CHẶN TUYỆT ĐỐI: Không cho VĐV nào đánh quá 4 trận
+        if (players.some(p => playCount[p] >= TARGET_PLAY_PER_PERSON)) {
+          continue;
+        }
 
         let currentIdx = scheduled.length;
         let restTimes = players.map(p => currentIdx - lastPlayed[p] - 1);
@@ -1218,14 +1256,14 @@ function generateKing11Matches() {
         let avgRest = restTimes.reduce((a, b) => a + b, 0) / 4;
 
         let score = 0;
-        if (minRest === 0) score -= 5000; // Tránh đánh 2 trận liên tiếp
-        if (minRest === 1) score -= 300;  // Hạn chế nghỉ 1 trận
+        if (minRest === 0) score -= 5000; // Tránh tối đa việc đánh 2 trận liên tiếp
+        if (minRest === 1) score -= 200;  // Hạn chế nghỉ 1 trận
 
         score += avgRest * 50;
-        // Ưu tiên xếp các VĐV đang có ít trận hơn
+        // Ưu tiên trận có các VĐV đang thi đấu ít trận nhất
         let totalPlayed = players.reduce((sum, p) => sum + playCount[p], 0);
         score -= totalPlayed * 100;
-        score += Math.random() * 10;
+        score += Math.random() * 20;
 
         if (score > bestScore) {
           bestScore = score;
@@ -1233,10 +1271,10 @@ function generateKing11Matches() {
         }
       }
 
-      // Nếu đi vào thế bí (không còn trận nào thỏa mãn người chưa đủ 4 trận)
+      // Nếu rơi vào thế bí, dừng thử kịch bản này
       if (bestIndex === -1) {
         isStuck = true;
-        break; // Bỏ qua kịch bản lỗi này, chuyển sang lần thử (attempt) tiếp theo
+        break;
       }
 
       let chosen = rawMatches.splice(bestIndex, 1)[0];
@@ -1257,14 +1295,14 @@ function generateKing11Matches() {
       });
     }
 
-    // Nếu tạo thành công đủ 11 trận và tất cả 11 VĐV đều đánh đủ 4 trận
-    if (!isStuck && scheduled.length === MAX_MATCHES && playCount.every(c => c === 4)) {
+    // Kiểm tra kết quả: Đủ 11 trận VÀ TẤT CẢ 11 NGƯỜI ĐỀU ĐÁNH ĐÚNG 4 TRẬN
+    if (!isStuck && scheduled.length === TOTAL_MATCHES && playCount.every(c => c === TARGET_PLAY_PER_PERSON)) {
       return scheduled;
     }
   }
 
-  // Fallback an toàn nếu vượt quá 500 lần thử (hiếm khi xảy ra)
-  alert("⚠️ Đã tạo lịch thi đấu tối ưu nhất!");
+  // Trường hợp hiếm không tìm thấy kịch bản hoàn hảo
+  alert("⚠️ Không thể sắp xếp lịch thỏa mãn, vui lòng bấm reset thử lại!");
   return [];
 }
 function getValidPairings(players4, groupA, groupB, type) {

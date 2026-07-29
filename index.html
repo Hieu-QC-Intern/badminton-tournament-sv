@@ -229,6 +229,23 @@ body {
       padding: 1px 3px !important;
     }
   }  
+@media (max-width: 480px) {
+  /* Class khung chứa từng card (thường tên là .king11-card, .stat-card, hoặc .player-card) */
+  .king11-card {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 10px 14px !important;
+    margin-bottom: 8px !important;
+  }
+
+  /* Đưa các phần tử bên trong card về hiển thị dòng ngang */
+  .king11-card > div {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
 }
 </style>
 </head>

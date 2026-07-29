@@ -1068,79 +1068,107 @@ function createNewKing11Schedule() {
 
 // ── 👑 THUẬT TOÁN GHÉP CẶP FLEXIBLE CHO KING 11 ──
 function generateKing11Matches() {
-  // Nhóm A: 6 VĐV đầu (index 0->5), Nhóm B: 5 VĐV sau (index 6->10)
-  const groupA = [0, 1, 2, 3, 4, 5];
-  const groupB = [6, 7, 8, 9, 10];
+  // 1. Tạo danh sách tất cả các trận đấu cần tổ chức
+  let rawMatches = [];
 
-  let matches = [];
-  let playCounts = Array(11).fill(0);
-  let pairHistory = Array(11).fill(0).map(() => Array(11).fill(0));
-
-  const MATCH_TYPES = [
-    { type: 'A+B vs A+B', reqA: 2, reqB: 2 },
-    { type: 'A+A vs A+A', reqA: 4, reqB: 0 },
-    { type: 'B+B vs B+B', reqA: 0, reqB: 4 }
-  ];
-
-  const TOTAL_MATCHES = 11;
-
-  for (let m = 1; m <= TOTAL_MATCHES; m++) {
-    let bestMatch = null;
-    let minScore = Infinity;
-
-    for (let matchType of MATCH_TYPES) {
-      let possibleACombinations = getCombinations(groupA, matchType.reqA);
-      let possibleBCombinations = getCombinations(groupB, matchType.reqB);
-
-      for (let combA of possibleACombinations) {
-        for (let combB of possibleBCombinations) {
-          let candidate4 = [...combA, ...combB];
-          let validSplits = getValidPairings(candidate4, groupA, groupB, matchType.type);
-
-          for (let split of validSplits) {
-            let [p1, p2, p3, p4] = split;
-
-            let playPenalty = (playCounts[p1] + playCounts[p2] + playCounts[p3] + playCounts[p4]) * 100;
-            let pairPenalty = (pairHistory[p1][p2] + pairHistory[p3][p4]) * 50;
-            let randomNoise = Math.random() * 5;
-
-            let totalPenalty = playPenalty + pairPenalty + randomNoise;
-
-            if (totalPenalty < minScore) {
-              minScore = totalPenalty;
-              bestMatch = {
-                teamA: [p1, p2],
-                teamB: [p3, p4],
-                matchType: matchType.type
-              };
-            }
+  // A+B vs A+B (30 trận)
+  for (let a1 = 0; a1 < 6; a1++) {
+    for (let a2 = a1 + 1; a2 < 6; a2++) {
+      for (let b1 = 6; b1 < 11; b1++) {
+        for (let b2 = b1 + 1; b2 < 11; b2++) {
+          // Ghép ngẫu nhiên/cố định cặp A1+B1 vs A2+B2 hoặc A1+B2 vs A2+B1
+          if ((a1 + b1) % 2 === 0) {
+            rawMatches.push({ type: 'A+B VS A+B', p: [a1, b1, a2, b2] });
+          } else {
+            rawMatches.push({ type: 'A+B VS A+B', p: [a1, b2, a2, b1] });
           }
         }
       }
     }
+  }
 
-    if (bestMatch) {
-      let [p1, p2] = bestMatch.teamA;
-      let [p3, p4] = bestMatch.teamB;
-
-      playCounts[p1]++; playCounts[p2]++;
-      playCounts[p3]++; playCounts[p4]++;
-
-      pairHistory[p1][p2]++; pairHistory[p2][p1]++;
-      pairHistory[p3][p4]++; pairHistory[p4][p3]++;
-
-      matches.push({
-        id: m,
-        teamA: bestMatch.teamA,
-        teamB: bestMatch.teamB,
-        matchType: bestMatch.matchType,
-        scoreA: "",
-        scoreB: ""
-      });
+  // A+A vs A+A (15 trận)
+  for (let i = 0; i < 6; i++) {
+    for (let j = i + 1; j < 6; j++) {
+      for (let k = j + 1; k < 6; k++) {
+        for (let l = k + 1; l < 6; l++) {
+          rawMatches.push({ type: 'A+A VS A+A', p: [i, j, k, l] });
+        }
+      }
     }
   }
 
-  return matches;
+  // B+B vs B+B (5 trận)
+  for (let i = 6; i < 11; i++) {
+    for (let j = i + 1; j < 11; j++) {
+      for (let k = j + 1; k < 11; k++) {
+        for (let l = k + 1; l < 11; l++) {
+          rawMatches.push({ type: 'B+B VS B+B', p: [i, j, k, l] });
+        }
+      }
+    }
+  }
+
+  // 2. Thuật toán Greedy Sắp Xếp Lịch Tránh Trận Liên Tiếp & Tránh Nghỉ Lâu
+  let scheduled = [];
+  let lastPlayed = Array(11).fill(-99); // Ghi nhận chỉ số trận gần nhất VĐV ra sân
+
+  while (rawMatches.length > 0) {
+    let bestIndex = -1;
+    let bestScore = -Infinity;
+
+    for (let idx = 0; idx < rawMatches.length; idx++) {
+      let match = rawMatches[idx];
+      let currentMatchIdx = scheduled.length;
+
+      // Tính khoảng thời gian nghỉ của 4 người trong trận này
+      let restTimes = match.p.map(pIdx => currentMatchIdx - lastPlayed[pIdx] - 1);
+      
+      let minRest = Math.min(...restTimes);
+      let avgRest = restTimes.reduce((a, b) => a + b, 0) / 4;
+
+      // Hệ thống tính điểm ưu tiên (Penalty System)
+      let score = 0;
+
+      // Phạt CỰC NẶNG nếu có người đánh 2 trận liên tiếp (minRest == 0)
+      if (minRest === 0) score -= 5000;
+
+      // Phạt nếu có người vừa đánh xong nghỉ chỉ 1 trận (minRest == 1)
+      if (minRest === 1) score -= 500;
+
+      // Ưu tiên các trận mà người chơi đã phải chờ lâu (tránh nguội người)
+      score += avgRest * 50;
+
+      // Ưu tiên các trận giữ nhịp đều đặn (nghỉ từ 2 đến 4 trận là lý tưởng)
+      restTimes.forEach(r => {
+        if (r >= 2 && r <= 4) score += 100;
+      });
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestIndex = idx;
+      }
+    }
+
+    // Chọn trận đấu có điểm tối ưu nhất
+    let chosenMatch = rawMatches.splice(bestIndex, 1)[0];
+    let currentMatchIdx = scheduled.length;
+
+    // Cập nhật lại trận ra sân gần nhất của 4 VĐV
+    chosenMatch.p.forEach(pIdx => {
+      lastPlayed[pIdx] = currentMatchIdx;
+    });
+
+    scheduled.push({
+      type: chosenMatch.type,
+      teamA: [chosenMatch.p[0], chosenMatch.p[1]],
+      teamB: [chosenMatch.p[2], chosenMatch.p[3]],
+      scoreA: "",
+      scoreB: ""
+    });
+  }
+
+  return scheduled;
 }
 
 function getValidPairings(players4, groupA, groupB, type) {

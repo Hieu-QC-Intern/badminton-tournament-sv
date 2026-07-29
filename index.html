@@ -1070,7 +1070,7 @@ function createNewKing11Schedule() {
 function generateKing11Matches() {
   let rawMatches = [];
 
-  // 1. Tạo danh sách trận đấu chuẩn format teamA, teamB, matchType
+  // 1. Sinh danh sách tất cả các trận
   // A+B vs A+B (30 trận)
   for (let a1 = 0; a1 < 6; a1++) {
     for (let a2 = a1 + 1; a2 < 6; a2++) {
@@ -1108,7 +1108,10 @@ function generateKing11Matches() {
     }
   }
 
-  // 2. Thuật toán dãn trận thông minh (Tránh 2 trận liên tiếp & nghỉ quá lâu)
+  // 🎲 BƯỚC MỚI: Trộn ngẫu nhiên danh sách trận ban đầu trước khi tối ưu lịch
+  rawMatches.sort(() => Math.random() - 0.5);
+
+  // 2. Thuật toán Greedy xếp lịch tối ưu nghỉ ngơi
   let scheduled = [];
   let lastPlayed = Array(11).fill(-99);
 
@@ -1126,9 +1129,12 @@ function generateKing11Matches() {
       let avgRest = restTimes.reduce((a, b) => a + b, 0) / 4;
 
       let score = 0;
-      if (minRest === 0) score -= 5000; // Tránh tuyệt đối đánh 2 trận liên tiếp
-      if (minRest === 1) score -= 500;  // Hạn chế vừa đánh xong nghỉ 1 trận
-      score += avgRest * 50;            // Ưu tiên người nghỉ lâu ra sân
+      if (minRest === 0) score -= 5000; // Tránh tuyệt đối 2 trận liên tiếp
+      if (minRest === 1) score -= 500;  // Hạn chế nghỉ 1 trận
+      score += avgRest * 50;            // Ưu tiên người chờ lâu
+
+      // Bổ sung xíu điểm ngẫu nhiên nhẹ để giải quyết các trường hợp điểm bằng nhau
+      score += Math.random() * 5;
 
       if (score > bestScore) {
         bestScore = score;
@@ -1139,12 +1145,10 @@ function generateKing11Matches() {
     let chosen = rawMatches.splice(bestIndex, 1)[0];
     let currentIdx = scheduled.length;
 
-    // Cập nhật lượt đấu gần nhất của 4 VĐV
     [chosen.teamA[0], chosen.teamA[1], chosen.teamB[0], chosen.teamB[1]].forEach(p => {
       lastPlayed[p] = currentIdx;
     });
 
-    // Trả về đúng object khớp với hàm renderKing11Schedule của ông
     scheduled.push({
       id: currentIdx + 1,
       matchType: chosen.matchType,

@@ -1070,16 +1070,16 @@ function createNewKing11Schedule() {
 function generateKing11Matches() {
   let rawMatches = [];
 
-  // 1. Sinh danh sách tất cả các trận
+  // 1. Tạo danh sách trận đấu chuẩn format teamA, teamB, matchType
   // A+B vs A+B (30 trận)
   for (let a1 = 0; a1 < 6; a1++) {
     for (let a2 = a1 + 1; a2 < 6; a2++) {
       for (let b1 = 6; b1 < 11; b1++) {
         for (let b2 = b1 + 1; b2 < 11; b2++) {
           if ((a1 + b1) % 2 === 0) {
-            rawMatches.push({ type: 'A+B VS A+B', p1: a1, p2: b1, p3: a2, p4: b2 });
+            rawMatches.push({ matchType: 'A+B VS A+B', teamA: [a1, b1], teamB: [a2, b2] });
           } else {
-            rawMatches.push({ type: 'A+B VS A+B', p1: a1, p2: b2, p3: a2, p4: b1 });
+            rawMatches.push({ matchType: 'A+B VS A+B', teamA: [a1, b2], teamB: [a2, b1] });
           }
         }
       }
@@ -1091,7 +1091,7 @@ function generateKing11Matches() {
     for (let j = i + 1; j < 6; j++) {
       for (let k = j + 1; k < 6; k++) {
         for (let l = k + 1; l < 6; l++) {
-          rawMatches.push({ type: 'A+A VS A+A', p1: i, p2: j, p3: k, p4: l });
+          rawMatches.push({ matchType: 'A+A VS A+A', teamA: [i, j], teamB: [k, l] });
         }
       }
     }
@@ -1102,13 +1102,13 @@ function generateKing11Matches() {
     for (let j = i + 1; j < 11; j++) {
       for (let k = j + 1; k < 11; k++) {
         for (let l = k + 1; l < 11; l++) {
-          rawMatches.push({ type: 'B+B VS B+B', p1: i, p2: j, p3: k, p4: l });
+          rawMatches.push({ matchType: 'B+B VS B+B', teamA: [i, j], teamB: [k, l] });
         }
       }
     }
   }
 
-  // 2. Xếp lịch thông minh (Tránh đánh liên tiếp & Tránh nghỉ quá lâu)
+  // 2. Thuật toán dãn trận thông minh (Tránh 2 trận liên tiếp & nghỉ quá lâu)
   let scheduled = [];
   let lastPlayed = Array(11).fill(-99);
 
@@ -1118,7 +1118,7 @@ function generateKing11Matches() {
 
     for (let idx = 0; idx < rawMatches.length; idx++) {
       let m = rawMatches[idx];
-      let players = [m.p1, m.p2, m.p3, m.p4];
+      let players = [m.teamA[0], m.teamA[1], m.teamB[0], m.teamB[1]];
       let currentIdx = scheduled.length;
 
       let restTimes = players.map(p => currentIdx - lastPlayed[p] - 1);
@@ -1126,9 +1126,9 @@ function generateKing11Matches() {
       let avgRest = restTimes.reduce((a, b) => a + b, 0) / 4;
 
       let score = 0;
-      if (minRest === 0) score -= 5000; // Tránh tuyệt đối 2 trận liên tiếp
+      if (minRest === 0) score -= 5000; // Tránh tuyệt đối đánh 2 trận liên tiếp
       if (minRest === 1) score -= 500;  // Hạn chế vừa đánh xong nghỉ 1 trận
-      score += avgRest * 50;            // Ưu tiên người chờ lâu ra sân
+      score += avgRest * 50;            // Ưu tiên người nghỉ lâu ra sân
 
       if (score > bestScore) {
         bestScore = score;
@@ -1139,18 +1139,17 @@ function generateKing11Matches() {
     let chosen = rawMatches.splice(bestIndex, 1)[0];
     let currentIdx = scheduled.length;
 
-    [chosen.p1, chosen.p2, chosen.p3, chosen.p4].forEach(p => {
+    // Cập nhật lượt đấu gần nhất của 4 VĐV
+    [chosen.teamA[0], chosen.teamA[1], chosen.teamB[0], chosen.teamB[1]].forEach(p => {
       lastPlayed[p] = currentIdx;
     });
 
-    // Giữ nguyên đúng format object cũ của ông để không bị lỗi undefined
+    // Trả về đúng object khớp với hàm renderKing11Schedule của ông
     scheduled.push({
-      matchIndex: currentIdx + 1,
-      type: chosen.type,
-      p1: chosen.p1,
-      p2: chosen.p2,
-      p3: chosen.p3,
-      p4: chosen.p4,
+      id: currentIdx + 1,
+      matchType: chosen.matchType,
+      teamA: chosen.teamA,
+      teamB: chosen.teamB,
       scoreA: "",
       scoreB: ""
     });

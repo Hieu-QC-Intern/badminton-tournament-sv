@@ -570,9 +570,25 @@ body {
 <!-- ════════════════════ PAGE 2: KING 11 NGƯỜI (TỰ ĐỘNG) ════════════════════ -->
 <div id="page-king11" class="page-view">
   <div class="setup-box">
-    <div class="section-title" style="margin-top:0;">👥 Danh sách 11 Vận Động Viên (VĐV 1-6: Nhóm A | VĐV 7-11: Nhóm B)</div>
+    <div class="section-title" style="margin-top:0;">⚙️ Cấu Hình Số Lượng VĐV</div>
+    <div style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center; align-items:flex-end; margin-bottom:10px;">
+      <div class="k11-input-item" style="max-width:140px;">
+        <label>Số VĐV Nhóm A</label>
+        <input type="number" id="k11_groupA_count" min="0" value="6">
+      </div>
+      <div class="k11-input-item" style="max-width:140px;">
+        <label>Số VĐV Nhóm B</label>
+        <input type="number" id="k11_groupB_count" min="0" value="5">
+      </div>
+      <div class="k11-input-item" style="max-width:160px;">
+        <label>Số trận / người</label>
+        <input type="number" id="k11_target_per_person" min="1" value="4">
+      </div>
+      <button class="btn-action-primary" onclick="renderKing11InputInputs()">🔧 Áp Dụng Số Lượng</button>
+    </div>
+    <div class="section-title" id="k11-group-title" style="margin-top:0;">👥 Danh sách Vận Động Viên</div>
     <div class="k11-grid" id="k11-player-inputs">
-      <!-- Sinh tự động 11 ô input tên -->
+      <!-- Sinh tự động ô input tên theo số lượng đã cấu hình -->
     </div>
     <div style="text-align: center; margin-top: 14px; display: flex; justify-content: center; gap: 10px;">
       <button class="btn-action-primary" onclick="saveKing11Players()">💾 Cập Nhật Danh Sách Tên VĐV</button>
@@ -1115,37 +1131,67 @@ function clearTournament() {
   if (confirm("Xóa toàn bộ dữ liệu giải này?")) dbRef.remove();
 }
 
-// ── 👑 LOGIC DÀNH RIÊNG CHO PAGE KING 11 NGƯỜI ──
+// ── 👑 LOGIC DÀNH RIÊNG CHO PAGE KING (SỐ LƯỢNG VĐV LINH HOẠT) ──
 var k11Players = [];
 var k11Matches = [];
+var k11GroupACount = 6;
+var k11GroupBCount = 5;
 
-function renderKing11InputInputs() {
+function getKing11GroupCounts() {
+  let aEl = document.getElementById('k11_groupA_count');
+  let bEl = document.getElementById('k11_groupB_count');
+  let a = aEl ? parseInt(aEl.value) : k11GroupACount;
+  let b = bEl ? parseInt(bEl.value) : k11GroupBCount;
+  if (isNaN(a) || a < 0) a = 0;
+  if (isNaN(b) || b < 0) b = 0;
+  return { a, b };
+}
+
+function renderKing11InputInputs(preserveExisting) {
+  const { a, b } = getKing11GroupCounts();
+  k11GroupACount = a;
+  k11GroupBCount = b;
+  const total = a + b;
+
+  // Giữ lại tên đã nhập trước đó (nếu có) khi thay đổi số lượng
+  let existingNames = preserveExisting ? getInputsKing11Players(true) : [];
+
   const container = document.getElementById('k11-player-inputs');
   container.innerHTML = "";
-  for(let i=1; i<=11; i++) {
-    let groupTag = i <= 6 ? "(A)" : "(B)";
+  for (let i = 1; i <= total; i++) {
+    let groupTag = i <= a ? "(A)" : "(B)";
+    let existingVal = existingNames[i - 1] || "";
     container.innerHTML += `
       <div class="k11-input-item">
         <label>VĐV ${i} ${groupTag}</label>
-        <input type="text" id="k11_p_${i}" placeholder="VĐV ${i}">
+        <input type="text" id="k11_p_${i}" placeholder="VĐV ${i}" value="${existingVal}">
       </div>
     `;
   }
+
+  const titleEl = document.getElementById('k11-group-title');
+  if (titleEl) {
+    titleEl.textContent = `👥 Danh sách ${total} Vận Động Viên (VĐV 1-${a}: Nhóm A | VĐV ${a + 1}-${total}: Nhóm B)`;
+  }
 }
 
-function getInputsKing11Players() {
+function getInputsKing11Players(skipDefault) {
+  const total = k11GroupACount + k11GroupBCount;
   let names = [];
-  for(let i=1; i<=11; i++) {
+  for (let i = 1; i <= total; i++) {
     let el = document.getElementById(`k11_p_${i}`);
     let val = el ? el.value.trim() : "";
-    names.push(val || `VĐV ${i}`);
+    names.push(skipDefault ? val : (val || `VĐV ${i}`));
   }
   return names;
 }
 
 function saveKing11Players() {
   let names = getInputsKing11Players();
-  db.ref('king11_data/players').set(names).then(() => {
+  const { a, b } = getKing11GroupCounts();
+  db.ref('king11_data/players').set(names);
+  db.ref('king11_data/groupACount').set(a);
+  db.ref('king11_data/groupBCount').set(b).then(() => {
     alert("✅ Đã cập nhật danh sách VĐV!");
   });
 }
@@ -1155,36 +1201,63 @@ function createNewKing11Schedule() {
   const pass = getKing11Password();
   if (!pass) return;
 
-  if (!confirm("⚠️ Bạn có chắc chắn muốn TẠO MỚI/RESET toàn bộ lịch thi đấu & tỷ số King 11 người?")) return;
+  if (!confirm("⚠️ Bạn có chắc chắn muốn TẠO MỚI/RESET toàn bộ lịch thi đấu & tỷ số?")) return;
+
+  const { a, b } = getKing11GroupCounts();
+  k11GroupACount = a;
+  k11GroupBCount = b;
   let names = getInputsKing11Players();
-  k11Matches = generateKing11Matches();
-  
+
+  let targetEl = document.getElementById('k11_target_per_person');
+  let targetPerPerson = targetEl ? parseInt(targetEl.value) : 4;
+  if (isNaN(targetPerPerson) || targetPerPerson < 1) targetPerPerson = 4;
+
+  const total = a + b;
+  if (total < 4) {
+    alert("⚠️ Cần tối thiểu 4 VĐV để tạo lịch thi đấu!");
+    return;
+  }
+  if ((total * targetPerPerson) % 4 !== 0) {
+    alert(`⚠️ Với ${total} VĐV, "Số trận / người" = ${targetPerPerson} không chia hết để ghép đủ 4 người/trận. Hãy đổi số trận mỗi người (ví dụ thử giá trị khác) rồi thử lại.`);
+    return;
+  }
+
+  k11Matches = generateKing11Matches(a, b, targetPerPerson);
+  if (!k11Matches || k11Matches.length === 0) return; // Đã alert lỗi bên trong hàm generate
+
   db.ref('king11_data').set({
     players: names,
+    groupACount: a,
+    groupBCount: b,
+    targetPerPerson: targetPerPerson,
     matches: k11Matches
   }).then(() => {
     alert("🎉 Đã tạo lịch thi đấu mới thành công!");
   });
 }
 
-// ── 👑 THUẬT TOÁN GHÉP CẶP FLEXIBLE CHO KING 11 ──
-// ── 👑 THUẬT TOÁN GHÉP CẶP CHUẨN ĐỀU 4 TRẬN CHO KING 11 ──
-// ── 👑 THUẬT TOÁN GHÉP CẶP CHUẨN 100% MỖI NGƯỜI 4 TRẬN & KHÔNG BAO GIỜ LẮP / TREO ──
-// ── 👑 THUẬT TOÁN KING 11 FLEXIBLE (ĐẢM BẢO MỖI NGƯỜI ĐÚNG 4 TRẬN & KHÔNG TREO PAGE) ──
-function generateKing11Matches() {
-  const TOTAL_MATCHES = 11;
-  const TARGET_PLAY_PER_PERSON = 4;
-  const MAX_ATTEMPTS = 200; // Số lần thử lại tối đa nếu gặp ngõ tống (chạy mất < 5ms)
+// ── 👑 THUẬT TOÁN GHÉP CẶP KING LINH HOẠT (SỐ VĐV & NHÓM A/B TÙY CHỈNH) ──
+function generateKing11Matches(groupASize, groupBSize, targetPerPerson) {
+  const GROUP_A_SIZE = groupASize;
+  const GROUP_B_SIZE = groupBSize;
+  const TOTAL_PLAYERS = GROUP_A_SIZE + GROUP_B_SIZE;
+  const TARGET_PLAY_PER_PERSON = targetPerPerson;
+  const TOTAL_MATCHES = (TOTAL_PLAYERS * TARGET_PLAY_PER_PERSON) / 4;
+  const MAX_ATTEMPTS = 200; // Số lần thử lại tối đa nếu gặp ngõ cụt (chạy mất < 5ms)
+
+  // Nhóm A: chỉ số 0..GROUP_A_SIZE-1 | Nhóm B: chỉ số GROUP_A_SIZE..TOTAL_PLAYERS-1
+  const aStart = 0, aEnd = GROUP_A_SIZE;
+  const bStart = GROUP_A_SIZE, bEnd = TOTAL_PLAYERS;
 
   // 1. Hàm khởi tạo danh sách tất cả các trận đấu có thể có (AB vs AB, AA vs AA, BB vs BB)
   function buildAllPossibleMatches() {
     let matches = [];
 
-    // --- Kiểu 1: A+B VS A+B ---
-    for (let a1 = 0; a1 < 6; a1++) {
-      for (let a2 = a1 + 1; a2 < 6; a2++) {
-        for (let b1 = 6; b1 < 11; b1++) {
-          for (let b2 = b1 + 1; b2 < 11; b2++) {
+    // --- Kiểu 1: A+B VS A+B (cần >=2 người mỗi nhóm) ---
+    for (let a1 = aStart; a1 < aEnd; a1++) {
+      for (let a2 = a1 + 1; a2 < aEnd; a2++) {
+        for (let b1 = bStart; b1 < bEnd; b1++) {
+          for (let b2 = b1 + 1; b2 < bEnd; b2++) {
             if ((a1 + b1) % 2 === 0) {
               matches.push({ matchType: 'A+B VS A+B', teamA: [a1, b1], teamB: [a2, b2] });
             } else {
@@ -1195,11 +1268,11 @@ function generateKing11Matches() {
       }
     }
 
-    // --- Kiểu 2: A+A VS A+A (4 người nhóm A: 0..5) ---
-    for (let a1 = 0; a1 < 6; a1++) {
-      for (let a2 = a1 + 1; a2 < 6; a2++) {
-        for (let a3 = a2 + 1; a3 < 6; a3++) {
-          for (let a4 = a3 + 1; a4 < 6; a4++) {
+    // --- Kiểu 2: A+A VS A+A (cần >=4 người nhóm A) ---
+    for (let a1 = aStart; a1 < aEnd; a1++) {
+      for (let a2 = a1 + 1; a2 < aEnd; a2++) {
+        for (let a3 = a2 + 1; a3 < aEnd; a3++) {
+          for (let a4 = a3 + 1; a4 < aEnd; a4++) {
             matches.push({ matchType: 'A+A VS A+A', teamA: [a1, a4], teamB: [a2, a3] });
             matches.push({ matchType: 'A+A VS A+A', teamA: [a1, a3], teamB: [a2, a4] });
             matches.push({ matchType: 'A+A VS A+A', teamA: [a1, a2], teamB: [a3, a4] });
@@ -1208,11 +1281,11 @@ function generateKing11Matches() {
       }
     }
 
-    // --- Kiểu 3: B+B VS B+B (4 người nhóm B: 6..10) ---
-    for (let b1 = 6; b1 < 11; b1++) {
-      for (let b2 = b1 + 1; b2 < 11; b2++) {
-        for (let b3 = b2 + 1; b3 < 11; b3++) {
-          for (let b4 = b3 + 1; b4 < 11; b4++) {
+    // --- Kiểu 3: B+B VS B+B (cần >=4 người nhóm B) ---
+    for (let b1 = bStart; b1 < bEnd; b1++) {
+      for (let b2 = b1 + 1; b2 < bEnd; b2++) {
+        for (let b3 = b2 + 1; b3 < bEnd; b3++) {
+          for (let b4 = b3 + 1; b4 < bEnd; b4++) {
             matches.push({ matchType: 'B+B VS B+B', teamA: [b1, b4], teamB: [b2, b3] });
             matches.push({ matchType: 'B+B VS B+B', teamA: [b1, b3], teamB: [b2, b4] });
             matches.push({ matchType: 'B+B VS B+B', teamA: [b1, b2], teamB: [b3, b4] });
@@ -1226,6 +1299,11 @@ function generateKing11Matches() {
 
   const allPossibleMatches = buildAllPossibleMatches();
 
+  if (allPossibleMatches.length === 0) {
+    alert("⚠️ Không đủ VĐV để tạo bất kỳ trận đấu nào với cấu hình nhóm hiện tại!");
+    return [];
+  }
+
   // 2. Thử ghép lịch ngẫu nhiên
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     let rawMatches = [...allPossibleMatches];
@@ -1233,8 +1311,8 @@ function generateKing11Matches() {
     rawMatches.sort(() => Math.random() - 0.5);
 
     let scheduled = [];
-    let playCount = Array(11).fill(0);
-    let lastPlayed = Array(11).fill(-99);
+    let playCount = Array(TOTAL_PLAYERS).fill(0);
+    let lastPlayed = Array(TOTAL_PLAYERS).fill(-99);
     let isStuck = false;
 
     while (scheduled.length < TOTAL_MATCHES) {
@@ -1245,7 +1323,7 @@ function generateKing11Matches() {
         let m = rawMatches[idx];
         let players = [m.teamA[0], m.teamA[1], m.teamB[0], m.teamB[1]];
 
-        // CHẶN TUYỆT ĐỐI: Không cho VĐV nào đánh quá 4 trận
+        // CHẶN TUYỆT ĐỐI: Không cho VĐV nào đánh quá số trận mục tiêu
         if (players.some(p => playCount[p] >= TARGET_PLAY_PER_PERSON)) {
           continue;
         }
@@ -1295,14 +1373,14 @@ function generateKing11Matches() {
       });
     }
 
-    // Kiểm tra kết quả: Đủ 11 trận VÀ TẤT CẢ 11 NGƯỜI ĐỀU ĐÁNH ĐÚNG 4 TRẬN
+    // Kiểm tra kết quả: Đủ số trận VÀ TẤT CẢ MỌI NGƯỜI ĐỀU ĐÁNH ĐÚNG SỐ TRẬN MỤC TIÊU
     if (!isStuck && scheduled.length === TOTAL_MATCHES && playCount.every(c => c === TARGET_PLAY_PER_PERSON)) {
       return scheduled;
     }
   }
 
   // Trường hợp hiếm không tìm thấy kịch bản hoàn hảo
-  alert("⚠️ Không thể sắp xếp lịch thỏa mãn, vui lòng bấm reset thử lại!");
+  alert("⚠️ Không thể sắp xếp lịch thỏa mãn với cấu hình này, hãy thử đổi số VĐV / số trận mỗi người rồi thử lại!");
   return [];
 }
 function getValidPairings(players4, groupA, groupB, type) {
@@ -1344,8 +1422,27 @@ function getCombinations(arr, k) {
 function bindKing11Realtime() {
   db.ref('king11_data').on('value', (snapshot) => {
     const data = snapshot.val() || {};
-    k11Players = data.players || Array.from({length: 11}, (_, i) => `VĐV ${i+1}`);
+    k11GroupACount = (typeof data.groupACount === 'number') ? data.groupACount : 6;
+    k11GroupBCount = (typeof data.groupBCount === 'number') ? data.groupBCount : 5;
+    const total = k11GroupACount + k11GroupBCount;
+    k11Players = data.players || Array.from({length: total}, (_, i) => `VĐV ${i+1}`);
     k11Matches = data.matches || [];
+
+    // Đồng bộ ô cấu hình số lượng nếu người dùng chưa đang gõ dở
+    let aEl = document.getElementById('k11_groupA_count');
+    let bEl = document.getElementById('k11_groupB_count');
+    let targetEl = document.getElementById('k11_target_per_person');
+    if (aEl && document.activeElement !== aEl) aEl.value = k11GroupACount;
+    if (bEl && document.activeElement !== bEl) bEl.value = k11GroupBCount;
+    if (targetEl && document.activeElement !== targetEl && typeof data.targetPerPerson === 'number') {
+      targetEl.value = data.targetPerPerson;
+    }
+
+    // Nếu số ô input tên hiện có không khớp số lượng đã lưu, vẽ lại toàn bộ lưới input
+    const existingInputCount = document.querySelectorAll('#k11-player-inputs .k11-input-item').length;
+    if (existingInputCount !== total) {
+      renderKing11InputInputs(false);
+    }
 
     k11Players.forEach((pName, idx) => {
       let el = document.getElementById(`k11_p_${idx+1}`);

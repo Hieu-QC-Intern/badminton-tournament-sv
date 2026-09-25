@@ -602,7 +602,10 @@ body {
 </div>  
 
   <div class="schedule-box">
-    <div class="section-title">📅 Lịch Thi Đấu Xoay Vòng (Ưu Tiên Đều Trận & Đúng Loại Ghép Cặp)</div>
+    <div class="section-title" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+      <span>📅 Lịch Thi Đấu Xoay Vòng (Ưu Tiên Đều Trận & Đúng Loại Ghép Cặp)</span>
+      <button class="btn-action-primary" style="font-size:0.85rem; padding:6px 12px;" onclick="printKing11Schedule()">🖨️ In Lịch Thi Đấu</button>
+    </div>
     <table class="sched-table">
       <thead>
         <tr>
@@ -1488,7 +1491,69 @@ function renderKing11Schedule() {
     `;
   });
 }
-// 🔑 Hàm kiểm tra & Trigger mật khẩu cho King 11
+
+// 🖨️ In lịch thi đấu King ra cửa sổ/khổ giấy riêng, gọn để dán bảng thông báo
+function printKing11Schedule() {
+  if (!k11Matches || k11Matches.length === 0) {
+    alert("⚠️ Chưa có lịch thi đấu để in. Hãy tạo lịch trước!");
+    return;
+  }
+
+  let rows = k11Matches.map(m => {
+    const nameA1 = k11Players[m.teamA[0]] || `VĐV ${m.teamA[0]+1}`;
+    const nameA2 = k11Players[m.teamA[1]] || `VĐV ${m.teamA[1]+1}`;
+    const nameB1 = k11Players[m.teamB[0]] || `VĐV ${m.teamB[0]+1}`;
+    const nameB2 = k11Players[m.teamB[1]] || `VĐV ${m.teamB[1]+1}`;
+    const hasScore = m.scoreA !== "" && m.scoreA !== null && m.scoreB !== "" && m.scoreB !== null && m.scoreA !== undefined && m.scoreB !== undefined;
+    const scoreDisplay = hasScore ? `${m.scoreA} - ${m.scoreB}` : "____ : ____";
+    return `
+      <tr>
+        <td>${m.id}</td>
+        <td style="font-size:11px; color:#555;">${m.matchType || ''}</td>
+        <td style="text-align:left;">${nameA1} + ${nameA2}</td>
+        <td class="score-cell">${scoreDisplay}</td>
+        <td style="text-align:left;">${nameB1} + ${nameB2}</td>
+      </tr>`;
+  }).join('');
+
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html lang="vi">
+    <head>
+      <meta charset="UTF-8">
+      <title>Lịch Thi Đấu - King of the Court</title>
+      <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; padding: 24px; color: #1e293b; }
+        h1 { text-align: center; margin-bottom: 4px; }
+        .meta { text-align: center; color: #555; margin-bottom: 20px; font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #94a3b8; padding: 8px 10px; text-align: center; font-size: 14px; }
+        th { background: #e2e8f0; }
+        tr:nth-child(even) { background: #f8fafc; }
+        .score-cell { font-weight: bold; min-width: 90px; }
+        @media print {
+          @page { margin: 14mm; }
+          button { display: none; }
+        }
+      </style>
+    </head>
+    <body>
+      <h1>👑 Lịch Thi Đấu - King of the Court</h1>
+      <div class="meta">Tổng số trận: ${k11Matches.length} &nbsp;|&nbsp; Ngày in: ${new Date().toLocaleDateString('vi-VN')}</div>
+      <table>
+        <thead>
+          <tr><th style="width:8%">Trận</th><th style="width:14%">Kiểu</th><th style="width:30%">Đội A</th><th style="width:18%">Tỷ Số</th><th style="width:30%">Đội B</th></tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.focus();
+  setTimeout(() => { printWindow.print(); }, 300);
+}
 function getKing11Password() {
   let passInput = document.getElementById('k11_admin_pass') || document.getElementById('admin_pass');
   let pass = passInput ? passInput.value.trim() : "";
